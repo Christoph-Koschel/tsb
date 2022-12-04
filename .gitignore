@@ -1,0 +1,6 @@
+.idea
+dep
+lib
+node_modules
+build
+./compile.ps1

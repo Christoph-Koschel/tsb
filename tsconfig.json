@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "declaration": true,
+    "removeComments": true,
+    "outDir": "build/src",
+    "declarationDir": "build/header",
+    "paths": {
+      "@yapm/*": [
+        "./lib/*"
+      ]
+    }
+  },
+  "exclude": [
+    "lib",
+    "node_modules",
+    "assets"
+  ]
+}
