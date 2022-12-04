@@ -1,5 +1,5 @@
 import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
-import {checkProjectConfigExists} from "@yapm/yapm/1.0.0/structure";
+import {checkProjectConfigExists} from "@yapm/yapm/1.0.1/structure";
 import * as output from "@yapm/fast-cli/1.0.0/output";
 import {cwd} from "../utils";
 import * as path from "path";

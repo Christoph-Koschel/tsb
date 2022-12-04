@@ -1,14 +1,14 @@
 import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
-import {checkProjectConfigExists} from "@yapm/yapm/1.0.0/structure";
+import {checkProjectConfigExists} from "@yapm/yapm/1.0.1/structure";
 import {cwd} from "../utils";
 import * as output from "@yapm/fast-cli/1.0.0/output";
-import {YAPMConfig} from "@yapm/yapm/1.0.0/types";
-import {readConfig} from "@yapm/yapm/1.0.0/project";
+import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
+import {readConfig} from "@yapm/yapm/1.0.1/project";
 import {getWrapper, SymbolTable} from "../helper";
 import {execSync} from "child_process";
 import {moveOneIn, overwriteFiles} from "../compiler";
 import {minify, MinifyOptions, MinifyOutput} from "uglify-js";
-import {createPackage} from "@yapm/yapm/1.0.0/bundler";
+import {createPackage} from "@yapm/yapm/1.0.1/bundler";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";

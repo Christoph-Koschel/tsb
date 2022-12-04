@@ -383,10 +383,10 @@ bundler.define("1.0.0/fast-cli/3", ["1.0.0/fast-cli/0"], async (__export, __impo
 	__export["1.0.0/fast-cli/3"] = {};
 	__export["1.0.0/fast-cli/3"].CLI = CLI;
 });
-bundler.define("1.0.0/yapm/2", ["1.0.0/yapm/0", "1.0.0/yapm/1"], async (__export, __import) => {
-	const checkCWD = __import["1.0.0/yapm/0"].checkCWD;
-	const checkProjectConfigExists = __import["1.0.0/yapm/0"].checkProjectConfigExists;
-	const readConfig = __import["1.0.0/yapm/1"].readConfig;
+bundler.define("1.0.1/yapm/2", ["1.0.1/yapm/0", "1.0.1/yapm/1"], async (__export, __import) => {
+	const checkCWD = __import["1.0.1/yapm/0"].checkCWD;
+	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
+	const readConfig = __import["1.0.1/yapm/1"].readConfig;
 	const AdmZip = require("adm-zip");
 	const path = require("path");
 	const fs = require("fs");
@@ -402,7 +402,7 @@ bundler.define("1.0.0/yapm/2", ["1.0.0/yapm/0", "1.0.0/yapm/1"], async (__export
 	    let config = readConfig(cwd);
 	    let zip = new AdmZip();
 	    fs.readdirSync(cwd).forEach(value => {
-	        if (value != "lib" && !value.endsWith(".yapm.tar")) {
+	        if (value != "lib" && !value.endsWith(".yapm.zip")) {
 	            let entry = path.join(cwd, value);
 	            out(`Include: "${entry}"`);
 	            if (fs.statSync(entry).isFile()) {
@@ -414,16 +414,16 @@ bundler.define("1.0.0/yapm/2", ["1.0.0/yapm/0", "1.0.0/yapm/1"], async (__export
 	        }
 	    });
 	    out("Write tarball...");
-	    const outFile = path.join(cwd, config.name + "-" + config.version.replace(/\./gi, "-") + ".yapm.tar");
+	    const outFile = path.join(cwd, config.name + "-" + config.version + ".yapm.zip");
 	    zip.writeZip(outFile);
 	    out("Package created");
 	    return outFile;
 	}
 	
-	__export["1.0.0/yapm/2"] = {};
-	__export["1.0.0/yapm/2"].createPackage = createPackage;
+	__export["1.0.1/yapm/2"] = {};
+	__export["1.0.1/yapm/2"].createPackage = createPackage;
 });
-bundler.define("1.0.0/yapm/3", [], async (__export, __import) => {
+bundler.define("1.0.1/yapm/3", [], async (__export, __import) => {
 	class WrongFormatException extends Error {
 	    constructor(message) {
 	        super(message);
@@ -450,28 +450,31 @@ bundler.define("1.0.0/yapm/3", [], async (__export, __import) => {
 	    }
 	}
 	
-	__export["1.0.0/yapm/3"] = {};
-	__export["1.0.0/yapm/3"].WrongFormatException = WrongFormatException;
-	__export["1.0.0/yapm/3"].StructureException = StructureException;
-	__export["1.0.0/yapm/3"].FetchError = FetchError;
-	__export["1.0.0/yapm/3"].ProjectInitException = ProjectInitException;
-	__export["1.0.0/yapm/3"].WebException = WebException;
+	__export["1.0.1/yapm/3"] = {};
+	__export["1.0.1/yapm/3"].WrongFormatException = WrongFormatException;
+	__export["1.0.1/yapm/3"].StructureException = StructureException;
+	__export["1.0.1/yapm/3"].FetchError = FetchError;
+	__export["1.0.1/yapm/3"].ProjectInitException = ProjectInitException;
+	__export["1.0.1/yapm/3"].WebException = WebException;
 });
-bundler.define("1.0.0/yapm/5", ["1.0.0/yapm/4", "1.0.0/yapm/0", "1.0.0/yapm/3", "1.0.0/yapm/1"], async (__export, __import) => {
-	const depToConf = __import["1.0.0/yapm/4"].depToConf;
-	const YAPM_TEMPLATE = __import["1.0.0/yapm/4"].YAPM_TEMPLATE;
-	const checkLibData = __import["1.0.0/yapm/0"].checkLibData;
-	const checkLibRoot = __import["1.0.0/yapm/0"].checkLibRoot;
-	const libIsInstalled = __import["1.0.0/yapm/0"].libIsInstalled;
-	const saveLib = __import["1.0.0/yapm/0"].saveLib;
-	const FetchError = __import["1.0.0/yapm/3"].FetchError;
-	const WebException = __import["1.0.0/yapm/3"].WebException;
-	const readConfig = __import["1.0.0/yapm/1"].readConfig;
-	const writeConfig = __import["1.0.0/yapm/1"].writeConfig;
+bundler.define("1.0.1/yapm/5", ["1.0.1/yapm/4", "1.0.1/yapm/0", "1.0.1/yapm/3", "1.0.1/yapm/1"], async (__export, __import) => {
+	const depToConf = __import["1.0.1/yapm/4"].depToConf;
+	const YAPM_TEMPLATE = __import["1.0.1/yapm/4"].YAPM_TEMPLATE;
+	const checkLibData = __import["1.0.1/yapm/0"].checkLibData;
+	const checkLibRoot = __import["1.0.1/yapm/0"].checkLibRoot;
+	const libIsInstalled = __import["1.0.1/yapm/0"].libIsInstalled;
+	const saveLib = __import["1.0.1/yapm/0"].saveLib;
+	const FetchError = __import["1.0.1/yapm/3"].FetchError;
+	const readConfig = __import["1.0.1/yapm/1"].readConfig;
+	const readRegisterConfig = __import["1.0.1/yapm/1"].readRegisterConfig;
+	const writeConfig = __import["1.0.1/yapm/1"].writeConfig;
 	const AdmZip = require("adm-zip");
 	const fs = require("fs");
-	const http = require("http");
 	const url = require("url");
+	const path = require("path");
+	const os = require("os");
+	const http = require("http");
+	const child_process = require("child_process");
 	
 	
 	
@@ -480,20 +483,47 @@ bundler.define("1.0.0/yapm/5", ["1.0.0/yapm/4", "1.0.0/yapm/0", "1.0.0/yapm/3", 
 	
 	
 	
-	async function installPackage(url, cwd, out) {
+	
+	
+	
+	function uninstallPackage(cwd, name, version) {
+	    let config = readConfig(cwd);
+	    let root = checkLibRoot(cwd);
+	    const template = Object.assign({}, YAPM_TEMPLATE);
+	    template.name = name;
+	    template.version = version;
+	    let libRoot = checkLibData(root, template, true);
+	    fs.rmSync(libRoot, { recursive: true });
+	    config.dependencies.splice(config.dependencies.findIndex(value => value.name == name), 1);
+	    writeConfig(cwd, config);
+	}
+	async function installPackage(fetch, cwd, out) {
 	    out("==== INSTALL ====");
 	    let yapmConfig = readConfig(cwd);
-	    let packageConfig = await installCycle(url, cwd, out);
-	    yapmConfig.dependencies.push({
+	    let [resolve, packageConfig] = await installCycle(fetch, cwd, out);
+	    let dep = {
 	        name: packageConfig.name,
 	        version: packageConfig.version,
-	        resolve: url
-	    });
+	        resolve: resolve
+	    };
+	    if (!dependencyExists(yapmConfig, dep)) {
+	        yapmConfig.dependencies.push(dep);
+	    }
 	    out("Installation finished");
 	    writeConfig(cwd, yapmConfig);
 	}
-	async function installCycle(url, cwd, out) {
-	    const buff = await fetchPackage(url);
+	async function installCycle(fetch, cwd, out) {
+	    let buff;
+	    let url;
+	    if (fetch.username == null && fetch.version == null) {
+	        buff = await fetchPackageURL(fetch.packageName, out);
+	        url = fetch.packageName;
+	    }
+	    else {
+	        let [_, __] = await fetchPackage(fetch.packageName, fetch.username, fetch.version, out);
+	        url = _;
+	        buff = __;
+	    }
 	    let zip = new AdmZip(buff);
 	    let config = zip.getEntry("yapm.json");
 	    if (!config) {
@@ -505,56 +535,93 @@ bundler.define("1.0.0/yapm/5", ["1.0.0/yapm/4", "1.0.0/yapm/0", "1.0.0/yapm/3", 
 	    for (const value of packageYapmConfig.dependencies) {
 	        if (!libIsInstalled(cwd, depToConf(value))) {
 	            out(`Install dependency "${value.name}@${value.version}"`);
-	            await installCycle(value.resolve, cwd, out);
+	            await installCycle({ packageName: value.resolve }, cwd, out);
 	        }
 	    }
-	    return packageYapmConfig;
+	    return [url, packageYapmConfig];
 	}
-	function unInstallPackage(cwd, name, version) {
-	    let config = readConfig(cwd);
-	    let root = checkLibRoot(cwd);
-	    const template = Object.assign({}, YAPM_TEMPLATE);
-	    template.name = name;
-	    template.version = version;
-	    let libRoot = checkLibData(root, template, true);
-	    fs.rmSync(libRoot, { recursive: true });
-	    config.dependencies.slice(config.dependencies.findIndex(value => value.name == name), 1);
-	    writeConfig(cwd, config);
-	}
-	async function fetchPackage(uri) {
+	async function fetchPackageURL(uri, out) {
 	    if (fs.existsSync(uri) && fs.statSync(uri).isFile()) {
 	        return fs.readFileSync(uri);
 	    }
-	    return new Promise(resolve => {
-	        http.get({
-	            host: url.parse(uri).host,
+	    return await fetchURL(uri);
+	}
+	async function fetchPackage(packageName, username, version, out) {
+	    const registers = readRegisterConfig();
+	    for (const value of registers) {
+	        let url = value.url;
+	        url = url.replace(/\{\{package}}/gi, packageName);
+	        url = url.replace(/\{\{username}}/gi, username);
+	        url = url.replace(/\{\{version}}/gi, version);
+	        url = url.replace(/\{\{e-version}}/gi, version.replace(/\./gi, "-"));
+	        switch (value.type) {
+	            case "GITHUB":
+	                out("Fetch Package from " + value.name);
+	                if (await urlExists(url)) {
+	                    return [url, await fetchURL(url)];
+	                }
+	            case "GIT":
+	                break;
+	            case "YAPM-REG":
+	                break;
+	        }
+	    }
+	    throw new FetchError("Cannot resolve " + packageName);
+	}
+	async function urlExists(uri) {
+	    return new Promise((resolve) => {
+	        let req = http.request({
+	            method: "HEAD",
+	            host: url.parse(uri).hostname,
 	            port: 80,
 	            path: url.parse(uri).pathname
-	        }, res => {
-	            let buff = Buffer.from([]);
-	            res.on("data", (data) => {
-	                buff = Buffer.concat([buff, data]);
+	        }, (res) => {
+	            res.on("error", (err) => {
+	                console.log(err.message);
 	            });
-	            res.on("end", () => {
-	                resolve(buff);
-	            });
-	            res.on("error", () => {
-	                throw new WebException(`Cannot fetch url "${uri}"`);
-	            });
+	            resolve(res.statusCode.toString()[0] == "3" || res.statusCode.toString()[0] == "2");
 	        });
+	        req.end();
 	    });
 	}
+	async function fetchURL(uri) {
+	    return new Promise((resolve, reject) => {
+	        let tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "yapm"));
+	        let tmpFile = path.join(tmpDir, "download.zip");
+	        let cmd;
+	        if (process.platform == "win32") {
+	            cmd = `Powershell.exe -Command "Invoke-RestMethod -Uri ${uri} -OutFile ${tmpFile}"`;
+	        }
+	        else if (process.platform == "darwin" || process.platform == "linux") {
+	            cmd = `curl ${uri} > ${tmpFile}`;
+	        }
+	        child_process.execSync(cmd, {
+	            windowsHide: true
+	        });
+	        let buff = fs.readFileSync(tmpFile);
+	        resolve(buff);
+	    });
+	}
+	function dependencyExists(config, dep) {
+	    for (let dependency of config.dependencies) {
+	        if (dependency.name == dep.name && dependency.version == dep.version) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 	
-	__export["1.0.0/yapm/5"] = {};
-	__export["1.0.0/yapm/5"].installPackage = installPackage;
-	__export["1.0.0/yapm/5"].fetchPackage = fetchPackage;
+	__export["1.0.1/yapm/5"] = {};
+	__export["1.0.1/yapm/5"].installPackage = installPackage;
+	__export["1.0.1/yapm/5"].fetchPackageURL = fetchPackageURL;
+	__export["1.0.1/yapm/5"].fetchPackage = fetchPackage;
 });
-bundler.define("1.0.0/yapm/1", ["1.0.0/yapm/0", "1.0.0/yapm/3"], async (__export, __import) => {
-	const checkCWD = __import["1.0.0/yapm/0"].checkCWD;
-	const checkLibConfigFormat = __import["1.0.0/yapm/0"].checkLibConfigFormat;
-	const checkProjectConfigExists = __import["1.0.0/yapm/0"].checkProjectConfigExists;
-	const ProjectInitException = __import["1.0.0/yapm/3"].ProjectInitException;
-	const WrongFormatException = __import["1.0.0/yapm/3"].WrongFormatException;
+bundler.define("1.0.1/yapm/1", ["1.0.1/yapm/0", "1.0.1/yapm/3"], async (__export, __import) => {
+	const checkCWD = __import["1.0.1/yapm/0"].checkCWD;
+	const checkLibConfigFormat = __import["1.0.1/yapm/0"].checkLibConfigFormat;
+	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
+	const ProjectInitException = __import["1.0.1/yapm/3"].ProjectInitException;
+	const WrongFormatException = __import["1.0.1/yapm/3"].WrongFormatException;
 	const fs = require("fs");
 	const path = require("path");
 	
@@ -578,14 +645,45 @@ bundler.define("1.0.0/yapm/1", ["1.0.0/yapm/0", "1.0.0/yapm/3"], async (__export
 	    checkProjectConfigExists(cwd);
 	    fs.writeFileSync(path.join(cwd, "yapm.json"), JSON.stringify(config, null, 4));
 	}
+	function getRegisterPath() {
+	    const appData = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share");
+	    const base = path.join(appData, "yapm");
+	    const config = path.join(base, "register.json");
+	    if (!fs.existsSync(base) || !fs.statSync(base).isDirectory()) {
+	        fs.mkdirSync(base);
+	        fs.writeFileSync(config, JSON.stringify([
+	            {
+	                type: "GITHUB",
+	                name: "github.com",
+	                url: "http://github.com/{{username}}/{{package}}/releases/download/{{version}}/{{package}}-{{e-version}}.yapm.tar"
+	            }
+	        ]));
+	    }
+	    return config;
+	}
+	function readRegisterConfig() {
+	    const p = getRegisterPath();
+	    try {
+	        return JSON.parse(fs.readFileSync(p, "utf-8"));
+	    }
+	    catch (err) {
+	        throw new WrongFormatException("Register file has wrong format");
+	    }
+	}
+	function writeRegisterConfig(registers) {
+	    const p = getRegisterPath();
+	    fs.writeFileSync(p, JSON.stringify(registers));
+	}
 	
-	__export["1.0.0/yapm/1"] = {};
-	__export["1.0.0/yapm/1"].readConfig = readConfig;
-	__export["1.0.0/yapm/1"].writeConfig = writeConfig;
+	__export["1.0.1/yapm/1"] = {};
+	__export["1.0.1/yapm/1"].readConfig = readConfig;
+	__export["1.0.1/yapm/1"].writeConfig = writeConfig;
+	__export["1.0.1/yapm/1"].readRegisterConfig = readRegisterConfig;
+	__export["1.0.1/yapm/1"].writeRegisterConfig = writeRegisterConfig;
 });
-bundler.define("1.0.0/yapm/0", ["1.0.0/yapm/4", "1.0.0/yapm/3"], async (__export, __import) => {
-	const YAPM_TEMPLATE = __import["1.0.0/yapm/4"].YAPM_TEMPLATE;
-	const StructureException = __import["1.0.0/yapm/3"].StructureException;
+bundler.define("1.0.1/yapm/0", ["1.0.1/yapm/4", "1.0.1/yapm/3"], async (__export, __import) => {
+	const YAPM_TEMPLATE = __import["1.0.1/yapm/4"].YAPM_TEMPLATE;
+	const StructureException = __import["1.0.1/yapm/3"].StructureException;
 	const fs = require("fs");
 	const path = require("path");
 	
@@ -677,17 +775,28 @@ bundler.define("1.0.0/yapm/0", ["1.0.0/yapm/4", "1.0.0/yapm/3"], async (__export
 	    return fs.existsSync(configFile) && fs.statSync(configFile).isFile();
 	}
 	
-	__export["1.0.0/yapm/0"] = {};
-	__export["1.0.0/yapm/0"].checkCWD = checkCWD;
-	__export["1.0.0/yapm/0"].checkLibRoot = checkLibRoot;
-	__export["1.0.0/yapm/0"].checkLibData = checkLibData;
-	__export["1.0.0/yapm/0"].checkLibConfig = checkLibConfig;
-	__export["1.0.0/yapm/0"].checkLibConfigFormat = checkLibConfigFormat;
-	__export["1.0.0/yapm/0"].saveLib = saveLib;
-	__export["1.0.0/yapm/0"].libIsInstalled = libIsInstalled;
-	__export["1.0.0/yapm/0"].checkProjectConfigExists = checkProjectConfigExists;
+	__export["1.0.1/yapm/0"] = {};
+	__export["1.0.1/yapm/0"].checkCWD = checkCWD;
+	__export["1.0.1/yapm/0"].checkLibRoot = checkLibRoot;
+	__export["1.0.1/yapm/0"].checkLibData = checkLibData;
+	__export["1.0.1/yapm/0"].checkLibConfig = checkLibConfig;
+	__export["1.0.1/yapm/0"].checkLibConfigFormat = checkLibConfigFormat;
+	__export["1.0.1/yapm/0"].saveLib = saveLib;
+	__export["1.0.1/yapm/0"].libIsInstalled = libIsInstalled;
+	__export["1.0.1/yapm/0"].checkProjectConfigExists = checkProjectConfigExists;
 });
-bundler.define("1.0.0/yapm/4", [], async (__export, __import) => {
+bundler.define("1.0.1/yapm/6", ["1.0.1/yapm/5"], async (__export, __import) => {
+	const fetchPackage = __import["1.0.1/yapm/5"].fetchPackage;
+	
+	(async () => {
+	    console.log("TRY FETCH PACKAGE");
+	    let [res, buff] = await fetchPackage("yapm", "Christoph-Koschel", "1.0.1", console.log);
+	    console.log(res, buff);
+	})().then(() => process.exit(0));
+	
+	__export["1.0.1/yapm/6"] = {};
+});
+bundler.define("1.0.1/yapm/4", [], async (__export, __import) => {
 	function depToConf(dep) {
 	    return {
 	        name: dep.name,
@@ -705,17 +814,17 @@ bundler.define("1.0.0/yapm/4", [], async (__export, __import) => {
 	    author: ""
 	};
 	
-	__export["1.0.0/yapm/4"] = {};
-	__export["1.0.0/yapm/4"].depToConf = depToConf;
-	__export["1.0.0/yapm/4"].YAPM_TEMPLATE = YAPM_TEMPLATE;
+	__export["1.0.1/yapm/4"] = {};
+	__export["1.0.1/yapm/4"].depToConf = depToConf;
+	__export["1.0.1/yapm/4"].YAPM_TEMPLATE = YAPM_TEMPLATE;
 });
 // M:\langs\bun\tsb-new\build\src\bin\tsb.js
-bundler.define("tsb/13", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/10", "tsb/11", "tsb/12", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/14", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/11", "tsb/12", "tsb/13", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const CLI = __import["1.0.0/fast-cli/3"].CLI;
 	const Colors = __import["1.0.0/fast-cli/2"].Colors;
-	const Init = __import["tsb/10"].Init;
-	const Compile = __import["tsb/11"].Compile;
-	const Generate = __import["tsb/12"].Generate;
+	const Init = __import["tsb/11"].Init;
+	const Compile = __import["tsb/12"].Compile;
+	const Generate = __import["tsb/13"].Generate;
 	const output = __import["1.0.0/fast-cli/2"];
 	
 	
@@ -733,22 +842,22 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/10", "tsb
 	    process.exit(c);
 	});
 	
-	__export["tsb/13"] = {};
+	__export["tsb/14"] = {};
 });
 // M:\langs\bun\tsb-new\build\src\commands\Compile.js
-bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "1.0.0/yapm/1", "tsb/15", "tsb/16", "1.0.0/yapm/2", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "1.0.1/yapm/1", "tsb/16", "tsb/17", "1.0.1/yapm/2", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
-	const checkProjectConfigExists = __import["1.0.0/yapm/0"].checkProjectConfigExists;
-	const cwd = __import["tsb/14"].cwd;
-	const readConfig = __import["1.0.0/yapm/1"].readConfig;
-	const getWrapper = __import["tsb/15"].getWrapper;
-	const SymbolTable = __import["tsb/15"].SymbolTable;
+	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
+	const cwd = __import["tsb/15"].cwd;
+	const readConfig = __import["1.0.1/yapm/1"].readConfig;
+	const getWrapper = __import["tsb/16"].getWrapper;
+	const SymbolTable = __import["tsb/16"].SymbolTable;
 	const {execSync} = require("child_process");
-	const moveOneIn = __import["tsb/16"].moveOneIn;
-	const overwriteFiles = __import["tsb/16"].overwriteFiles;
+	const moveOneIn = __import["tsb/17"].moveOneIn;
+	const overwriteFiles = __import["tsb/17"].overwriteFiles;
 	const {minify} = require("uglify-js");
-	const createPackage = __import["1.0.0/yapm/2"].createPackage;
+	const createPackage = __import["1.0.1/yapm/2"].createPackage;
 	const output = __import["1.0.0/fast-cli/2"];
 	const fs = require("fs");
 	const path = require("path");
@@ -991,16 +1100,16 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "1.0.0/y
 	    }
 	}
 	
-	__export["tsb/11"] = {};
-	__export["tsb/11"].Compile = Compile;
+	__export["tsb/12"] = {};
+	__export["tsb/12"].Compile = Compile;
 });
 // M:\langs\bun\tsb-new\build\src\commands\Generate.js
-bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "tsb/15", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
-	const checkProjectConfigExists = __import["1.0.0/yapm/0"].checkProjectConfigExists;
-	const cwd = __import["tsb/14"].cwd;
-	const getResourcesWrapper = __import["tsb/15"].getResourcesWrapper;
+	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
+	const cwd = __import["tsb/15"].cwd;
+	const getResourcesWrapper = __import["tsb/16"].getResourcesWrapper;
 	const output = __import["1.0.0/fast-cli/2"];
 	const path = require("path");
 	const fs = require("fs");
@@ -1120,18 +1229,18 @@ bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "tsb/15"
 	    }
 	}
 	
-	__export["tsb/12"] = {};
-	__export["tsb/12"].Generate = Generate;
+	__export["tsb/13"] = {};
+	__export["tsb/13"].Generate = Generate;
 });
 // M:\langs\bun\tsb-new\build\src\commands\Init.js
-bundler.define("tsb/10", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.0/yapm/1", "tsb/14", "tsb/15"], async (__export, __import) => {
+bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1", "tsb/15", "tsb/16"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
 	const decision = __import["1.0.0/fast-cli/1"].decision;
 	const readline = __import["1.0.0/fast-cli/1"].readline;
-	const writeConfig = __import["1.0.0/yapm/1"].writeConfig;
-	const cwd = __import["tsb/14"].cwd;
-	const createTSConfig = __import["tsb/15"].createTSConfig;
+	const writeConfig = __import["1.0.1/yapm/1"].writeConfig;
+	const cwd = __import["tsb/15"].cwd;
+	const createTSConfig = __import["tsb/16"].createTSConfig;
 	const fs = require("fs");
 	const path = require("path");
 	
@@ -1189,11 +1298,11 @@ bundler.define("tsb/10", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.0/yapm/1"
 	    }
 	}
 	
-	__export["tsb/10"] = {};
-	__export["tsb/10"].Init = Init;
+	__export["tsb/11"] = {};
+	__export["tsb/11"].Init = Init;
 });
 // M:\langs\bun\tsb-new\build\src\compiler.js
-bundler.define("tsb/16", ["1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/17", ["1.0.0/fast-cli/2"], async (__export, __import) => {
 	const fs = require("fs");
 	const path = require("path");
 	const os = require("os");
@@ -1434,15 +1543,15 @@ bundler.define("tsb/16", ["1.0.0/fast-cli/2"], async (__export, __import) => {
 	    return c;
 	}
 	
-	__export["tsb/16"] = {};
-	__export["tsb/16"].overwriteFiles = overwriteFiles;
-	__export["tsb/16"].overwriteFile = overwriteFile;
-	__export["tsb/16"].moveOneIn = moveOneIn;
+	__export["tsb/17"] = {};
+	__export["tsb/17"].overwriteFiles = overwriteFiles;
+	__export["tsb/17"].overwriteFile = overwriteFile;
+	__export["tsb/17"].moveOneIn = moveOneIn;
 });
 // M:\langs\bun\tsb-new\build\src\helper.js
-bundler.define("tsb/15", ["tsb/17"], async (__export, __import) => {
-	const load_resources = __import["tsb/17"].load_resources;
-	const R = __import["tsb/17"].R;
+bundler.define("tsb/16", ["tsb/18"], async (__export, __import) => {
+	const load_resources = __import["tsb/18"].load_resources;
+	const R = __import["tsb/18"].R;
 	const fs = require("fs");
 	const path = require("path");
 	
@@ -1477,14 +1586,14 @@ bundler.define("tsb/15", ["tsb/17"], async (__export, __import) => {
 	    }
 	}
 	
-	__export["tsb/15"] = {};
-	__export["tsb/15"].createTSConfig = createTSConfig;
-	__export["tsb/15"].getWrapper = getWrapper;
-	__export["tsb/15"].getResourcesWrapper = getResourcesWrapper;
-	__export["tsb/15"].SymbolTable = SymbolTable;
+	__export["tsb/16"] = {};
+	__export["tsb/16"].createTSConfig = createTSConfig;
+	__export["tsb/16"].getWrapper = getWrapper;
+	__export["tsb/16"].getResourcesWrapper = getResourcesWrapper;
+	__export["tsb/16"].SymbolTable = SymbolTable;
 });
 // M:\langs\bun\tsb-new\build\src\resources.js
-bundler.define("tsb/17", [], async (__export, __import) => {
+bundler.define("tsb/18", [], async (__export, __import) => {
 	const data = new Map();
 	function load_resources(id) {
 	    if (data.has(id.id)) {
@@ -1514,18 +1623,18 @@ bundler.define("tsb/17", [], async (__export, __import) => {
 	data.set(R.wrapper.bundler_js.id, "InVzZSBzdHJpY3QiOw0KDQpjbGFzcyBUU0J1bmRsZXIgew0KICAgIGNvbnN0cnVjdG9yKCkgew0KICAgICAgICB0aGlzLmxvYWRlZCA9IG5ldyBNYXAoKTsNCiAgICAgICAgdGhpcy5tb2R1bGVzID0gbmV3IE1hcCgpOw0KICAgICAgICB0aGlzLmF1dG9sb2FkID0gW107DQogICAgfQ0KDQogICAgZGVmaW5lKG5hbWUsIGltcG9ydHMsIGNiKSB7DQogICAgICAgIHRoaXMubW9kdWxlcy5zZXQobmFtZSwgew0KICAgICAgICAgICAgaW1wb3J0czogaW1wb3J0cywNCiAgICAgICAgICAgIGNiOiBjYg0KICAgICAgICB9KTsNCiAgICB9DQoNCiAgICBsb2FkKG5hbWUpIHsNCiAgICAgICAgdGhpcy5hdXRvbG9hZC5wdXNoKG5hbWUpOw0KICAgIH0NCg0KICAgIGFzeW5jIHN0YXJ0KCkgew0KICAgICAgICBmb3IgKGNvbnN0IGxvYWQgb2YgdGhpcy5hdXRvbG9hZCkgew0KICAgICAgICAgICAgYXdhaXQgdGhpcy5sb2FkUGFja2FnZShsb2FkKTsNCiAgICAgICAgfQ0KICAgIH0NCg0KICAgIGFzeW5jIGxvYWRQYWNrYWdlKG5hbWUpIHsNCiAgICAgICAgaWYgKHRoaXMubW9kdWxlcy5oYXMobmFtZSkpIHsNCiAgICAgICAgICAgIGlmICh0aGlzLmxvYWRlZC5oYXMobmFtZSkpIHsNCiAgICAgICAgICAgICAgICByZXR1cm4gdGhpcy5sb2FkZWQuZ2V0KG5hbWUpOw0KICAgICAgICAgICAgfQ0KICAgICAgICAgICAgbGV0IG1vZCA9IHRoaXMubW9kdWxlcy5nZXQobmFtZSk7DQogICAgICAgICAgICBpZiAobW9kID09IHVuZGVmaW5lZCkgew0KICAgICAgICAgICAgICAgIHJldHVybiB7fTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIGxldCBfX2ltcG9ydCA9IHt9Ow0KICAgICAgICAgICAgZm9yIChjb25zdCByZXEgb2YgbW9kLmltcG9ydHMpIHsNCiAgICAgICAgICAgICAgICBsZXQgcmVxSW1wb3J0ID0gYXdhaXQgdGhpcy5sb2FkUGFja2FnZShyZXEpOw0KICAgICAgICAgICAgICAgIE9iamVjdC5rZXlzKHJlcUltcG9ydCkuZm9yRWFjaCgodmFsdWUpID0+IHsNCiAgICAgICAgICAgICAgICAgICAgX19pbXBvcnRbdmFsdWVdID0gcmVxSW1wb3J0W3ZhbHVlXTsNCiAgICAgICAgICAgICAgICB9KTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIGxldCBfX2V4cG9ydCA9IHt9Ow0KICAgICAgICAgICAgYXdhaXQgbW9kLmNiKF9fZXhwb3J0LCBfX2ltcG9ydCk7DQogICAgICAgICAgICB0aGlzLmxvYWRlZC5zZXQobmFtZSwgX19leHBvcnQpOw0KICAgICAgICAgICAgcmV0dXJuIF9fZXhwb3J0Ow0KICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgdGhyb3cgIk5vIHBhY2thZ2Ugd2l0aCB0aGUgaWQgXCIiICsgbmFtZSArICJcIiBkZWZpbmVkIjsNCiAgICAgICAgfQ0KICAgIH0NCn0NCg0KY29uc3QgYnVuZGxlciA9IG5ldyBUU0J1bmRsZXIoKTsNCg==");
 	data.set(R.wrapper.res_ts.id, "dHlwZSBSZXNvdXJjZXNJRCA9IHsNCiAgICBpZDogbnVtYmVyOw0KfQ0KDQpjb25zdCBkYXRhOiBNYXA8bnVtYmVyLCBzdHJpbmc+ID0gbmV3IE1hcDxudW1iZXIsIHN0cmluZz4oKTsNCg0KZXhwb3J0IGZ1bmN0aW9uIGxvYWRfcmVzb3VyY2VzKGlkOiBSZXNvdXJjZXNJRCk6IHN0cmluZyB7DQogICAgaWYgKGRhdGEuaGFzKGlkLmlkKSkgew0KICAgICAgICByZXR1cm4gYXRvYig8c3RyaW5nPmRhdGEuZ2V0KGlkLmlkKSk7DQogICAgfQ0KICAgIHRocm93ICJSZXNvdXJjZXMgbm90IGRlY2xhcmVkIjsNCn0NCg0KZXhwb3J0IGZ1bmN0aW9uIGhhc19yZXNvdXJjZXMoaWQ6IFJlc291cmNlc0lEKTogYm9vbGVhbiB7DQogICAgcmV0dXJuIGRhdGEuaGFzKGlkLmlkKTsNCn0NCg0K");
 	
-	__export["tsb/17"] = {};
-	__export["tsb/17"].load_resources = load_resources;
-	__export["tsb/17"].has_resources = has_resources;
-	__export["tsb/17"].R = R;
+	__export["tsb/18"] = {};
+	__export["tsb/18"].load_resources = load_resources;
+	__export["tsb/18"].has_resources = has_resources;
+	__export["tsb/18"].R = R;
 });
 // M:\langs\bun\tsb-new\build\src\utils.js
-bundler.define("tsb/14", [], async (__export, __import) => {
+bundler.define("tsb/15", [], async (__export, __import) => {
 	const cwd = process.cwd();
 	
-	__export["tsb/14"] = {};
-	__export["tsb/14"].cwd = cwd;
+	__export["tsb/15"] = {};
+	__export["tsb/15"].cwd = cwd;
 });
 // Entry point call
-bundler.load("tsb/13");
+bundler.load("tsb/14");
 bundler.start();

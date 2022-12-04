@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import {YAPMConfig} from "@yapm/yapm/1.0.0/types";
+import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
 import {load_resources, R} from "./resources";
 
 export function createTSConfig(cwd: string) {
