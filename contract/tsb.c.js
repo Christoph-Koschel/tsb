@@ -735,7 +735,7 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/10", "tsb
 	
 	__export["tsb/13"] = {};
 });
-// M:\langs\bun\tsb-new\build\src\commands\compile.js
+// M:\langs\bun\tsb-new\build\src\commands\Compile.js
 bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "1.0.0/yapm/1", "tsb/15", "tsb/16", "1.0.0/yapm/2", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
@@ -957,24 +957,26 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "1.0.0/y
 	    }
 	    initLibraries(symbols) {
 	        output.writeln_log("Search for libraries");
-	        fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
-	            for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
-	                let p = path.join(cwd, "lib", lib, version);
-	                if (fs.existsSync(path.join(p, "tsb.json")) && fs.statSync(path.join(p, "tsb.json")).isFile()) {
-	                    try {
-	                        output.writeln_log(`Found ${lib}@${version}`, true);
-	                        let x = JSON.parse(fs.readFileSync(path.join(p, "tsb.json"), "utf8"));
-	                        Object.keys(x).forEach((key) => {
-	                            let parsed = path.parse(key);
-	                            symbols.set(`@yapm/${lib}/${version}${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
-	                        });
-	                    }
-	                    catch (err) {
-	                        break;
+	        if (fs.existsSync(path.join(cwd, "lib")) && fs.statSync(path.join(cwd, "lib")).isDirectory()) {
+	            fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
+	                for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
+	                    let p = path.join(cwd, "lib", lib, version);
+	                    if (fs.existsSync(path.join(p, "tsb.json")) && fs.statSync(path.join(p, "tsb.json")).isFile()) {
+	                        try {
+	                            output.writeln_log(`Found ${lib}@${version}`, true);
+	                            let x = JSON.parse(fs.readFileSync(path.join(p, "tsb.json"), "utf8"));
+	                            Object.keys(x).forEach((key) => {
+	                                let parsed = path.parse(key);
+	                                symbols.set(`@yapm/${lib}/${version}${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
+	                            });
+	                        }
+	                        catch (err) {
+	                            break;
+	                        }
 	                    }
 	                }
-	            }
-	        });
+	            });
+	        }
 	    }
 	    getCMD() {
 	        return new CommandConstructor("compile")
@@ -992,7 +994,7 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "1.0.0/y
 	__export["tsb/11"] = {};
 	__export["tsb/11"].Compile = Compile;
 });
-// M:\langs\bun\tsb-new\build\src\commands\generate.js
+// M:\langs\bun\tsb-new\build\src\commands\Generate.js
 bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "tsb/15", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
@@ -1121,10 +1123,11 @@ bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.0/yapm/0", "tsb/14", "tsb/15"
 	__export["tsb/12"] = {};
 	__export["tsb/12"].Generate = Generate;
 });
-// M:\langs\bun\tsb-new\build\src\commands\init.js
+// M:\langs\bun\tsb-new\build\src\commands\Init.js
 bundler.define("tsb/10", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.0/yapm/1", "tsb/14", "tsb/15"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
+	const decision = __import["1.0.0/fast-cli/1"].decision;
 	const readline = __import["1.0.0/fast-cli/1"].readline;
 	const writeConfig = __import["1.0.0/yapm/1"].writeConfig;
 	const cwd = __import["tsb/14"].cwd;
@@ -1150,6 +1153,8 @@ bundler.define("tsb/10", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.0/yapm/1"
 	        process.stdout.write("License (MIT): ");
 	        let license = await readline();
 	        license = license == "" ? "MIT" : license;
+	        process.stdout.write("Create Git Action for publishment?");
+	        let gitAction = await decision();
 	        writeConfig(cwd, {
 	            name: name,
 	            author: author,
@@ -1157,6 +1162,16 @@ bundler.define("tsb/10", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.0/yapm/1"
 	            license: license,
 	            dependencies: []
 	        });
+	        if (gitAction) {
+	            let githubFolder = path.join(cwd, ".github");
+	            if (!fs.existsSync(githubFolder) || !fs.statSync(githubFolder).isDirectory()) {
+	                fs.mkdirSync(githubFolder);
+	            }
+	            let workflowFolder = path.join(githubFolder, "workflows");
+	            if (!fs.existsSync(workflowFolder) || !fs.statSync(workflowFolder).isDirectory()) {
+	                fs.mkdirSync(workflowFolder);
+	            }
+	        }
 	        createTSConfig(cwd);
 	        if (!fs.existsSync(path.join(cwd, "src")) || fs.statSync(path.join(cwd, "src")).isFile()) {
 	            fs.mkdirSync(path.join(cwd, "src"));

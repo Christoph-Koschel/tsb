@@ -225,24 +225,26 @@ export class Compile extends Command {
 
     private initLibraries(symbols: SymbolTable) {
         output.writeln_log("Search for libraries");
-        fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
-            for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
-                let p = path.join(cwd, "lib", lib, version);
-                if (fs.existsSync(path.join(p, "tsb.json")) && fs.statSync(path.join(p, "tsb.json")).isFile()) {
-                    try {
-                        output.writeln_log(`Found ${lib}@${version}`, true);
-                        let x = JSON.parse(fs.readFileSync(path.join(p, "tsb.json"), "utf8"));
-                        Object.keys(x).forEach((key) => {
-                            let parsed = path.parse(key);
+        if (fs.existsSync(path.join(cwd, "lib")) && fs.statSync(path.join(cwd, "lib")).isDirectory()) {
+            fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
+                for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
+                    let p = path.join(cwd, "lib", lib, version);
+                    if (fs.existsSync(path.join(p, "tsb.json")) && fs.statSync(path.join(p, "tsb.json")).isFile()) {
+                        try {
+                            output.writeln_log(`Found ${lib}@${version}`, true);
+                            let x = JSON.parse(fs.readFileSync(path.join(p, "tsb.json"), "utf8"));
+                            Object.keys(x).forEach((key) => {
+                                let parsed = path.parse(key);
 
-                            symbols.set(`@yapm/${lib}/${version}${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
-                        });
-                    } catch (err) {
-                        break;
+                                symbols.set(`@yapm/${lib}/${version}${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
+                            });
+                        } catch (err) {
+                            break;
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     getCMD(): CommandConstructor {

@@ -3,4 +3,4 @@ dep
 lib
 node_modules
 build
-./compile.ps1
+compile.ps1
