@@ -5,6 +5,7 @@ import {Colors} from "@yapm/fast-cli/1.0.0/output";
 import {Init} from "../commands/Init";
 import {Compile} from "../commands/Compile";
 import {Generate} from "../commands/Generate";
+import {Publish} from "../commands/Publish";
 
 const cli = new CLI(process.argv);
 output.set_colors(Colors.CYAN, Colors.RED, Colors.GRAY);
@@ -12,6 +13,7 @@ output.set_colors(Colors.CYAN, Colors.RED, Colors.GRAY);
 cli.register(new Init());
 cli.register(new Compile());
 cli.register(new Generate());
+cli.register(new Publish());
 
 cli.exec().then((c) => {
     process.exit(c);

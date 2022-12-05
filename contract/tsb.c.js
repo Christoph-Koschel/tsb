@@ -116,6 +116,9 @@ bundler.define("1.0.0/fast-cli/0", [], async (__export, __import) => {
 	        this.attrs.push(new CommandAttribute(char, name, optional, description));
 	        return this;
 	    }
+	    getName() {
+	        return this.name;
+	    }
 	    equals(name, argv) {
 	        if (name != this.name) {
 	            return false;
@@ -339,13 +342,24 @@ bundler.define("1.0.0/fast-cli/3", ["1.0.0/fast-cli/0"], async (__export, __impo
 	            this.printCommandNotFound();
 	            return 1;
 	        }
-	        for (let cmd of this.cmds) {
-	            let command = cmd.getCMD();
-	            if (command.equals(cmdName, argumentHandler)) {
-	                if (isHelp) {
-	                    process.stdout.write(command.toString(cmd));
+	        if (isHelp) {
+	            let cmds = [];
+	            for (let cmd of this.cmds) {
+	                let command = cmd.getCMD();
+	                if (command.getName() == cmdName) {
+	                    cmds.push(cmd);
 	                }
-	                else {
+	            }
+	            console.log("Found " + cmds.length + " commands\n");
+	            cmds.forEach(cmd => {
+	                console.log(cmd.getCMD().toString(cmd));
+	                console.log("\n");
+	            });
+	        }
+	        else {
+	            for (let cmd of this.cmds) {
+	                let command = cmd.getCMD();
+	                if (command.equals(cmdName, argumentHandler)) {
 	                    return await cmd.execute(argumentHandler);
 	                }
 	            }
@@ -375,6 +389,26 @@ bundler.define("1.0.0/fast-cli/3", ["1.0.0/fast-cli/0"], async (__export, __impo
 	        return x.startsWith("--");
 	    }
 	    printGlobalHelp() {
+	        let group = [];
+	        for (let cmd of this.cmds) {
+	            let edit = false;
+	            for (let groupElement of group) {
+	                if (groupElement.name == cmd.getCMD().getName()) {
+	                    groupElement.overflow++;
+	                    edit = true;
+	                }
+	            }
+	            if (!edit) {
+	                group.push({
+	                    name: cmd.getCMD().getName(),
+	                    overflow: 0
+	                });
+	            }
+	        }
+	        group = group.sort((a, b) => a.name < b.name ? -1 : 1);
+	        for (let groupElement of group) {
+	            process.stdout.write(`${groupElement.name} `);
+	        }
 	    }
 	    printCommandNotFound() {
 	    }
@@ -541,8 +575,12 @@ bundler.define("1.0.1/yapm/5", ["1.0.1/yapm/4", "1.0.1/yapm/0", "1.0.1/yapm/3", 
 	    return [url, packageYapmConfig];
 	}
 	async function fetchPackageURL(uri, out) {
+	    let cwd = process.cwd();
 	    if (fs.existsSync(uri) && fs.statSync(uri).isFile()) {
 	        return fs.readFileSync(uri);
+	    }
+	    if (fs.existsSync(path.join(cwd, uri)) && fs.statSync(path.join(cwd, uri)).isFile()) {
+	        return fs.readFileSync(path.join(cwd, uri));
 	    }
 	    return await fetchURL(uri);
 	}
@@ -655,7 +693,7 @@ bundler.define("1.0.1/yapm/1", ["1.0.1/yapm/0", "1.0.1/yapm/3"], async (__export
 	            {
 	                type: "GITHUB",
 	                name: "github.com",
-	                url: "http://github.com/{{username}}/{{package}}/releases/download/{{version}}/{{package}}-{{e-version}}.yapm.tar"
+	                url: "http://github.com/{{username}}/{{package}}/releases/download/{{version}}/{{package}}-{{version}}.yapm.zip"
 	            }
 	        ]));
 	    }
@@ -819,13 +857,15 @@ bundler.define("1.0.1/yapm/4", [], async (__export, __import) => {
 	__export["1.0.1/yapm/4"].YAPM_TEMPLATE = YAPM_TEMPLATE;
 });
 // M:\langs\bun\tsb-new\build\src\bin\tsb.js
-bundler.define("tsb/14", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/11", "tsb/12", "tsb/13", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/15", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/11", "tsb/12", "tsb/13", "tsb/14", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const CLI = __import["1.0.0/fast-cli/3"].CLI;
 	const Colors = __import["1.0.0/fast-cli/2"].Colors;
 	const Init = __import["tsb/11"].Init;
 	const Compile = __import["tsb/12"].Compile;
 	const Generate = __import["tsb/13"].Generate;
+	const Publish = __import["tsb/14"].Publish;
 	const output = __import["1.0.0/fast-cli/2"];
+	
 	
 	
 	
@@ -838,24 +878,25 @@ bundler.define("tsb/14", ["1.0.0/fast-cli/3", "1.0.0/fast-cli/2", "tsb/11", "tsb
 	cli.register(new Init());
 	cli.register(new Compile());
 	cli.register(new Generate());
+	cli.register(new Publish());
 	cli.exec().then((c) => {
 	    process.exit(c);
 	});
 	
-	__export["tsb/14"] = {};
+	__export["tsb/15"] = {};
 });
 // M:\langs\bun\tsb-new\build\src\commands\Compile.js
-bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "1.0.1/yapm/1", "tsb/16", "tsb/17", "1.0.1/yapm/2", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/16", "1.0.1/yapm/1", "tsb/17", "tsb/18", "1.0.1/yapm/2", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
 	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
-	const cwd = __import["tsb/15"].cwd;
+	const cwd = __import["tsb/16"].cwd;
 	const readConfig = __import["1.0.1/yapm/1"].readConfig;
-	const getWrapper = __import["tsb/16"].getWrapper;
-	const SymbolTable = __import["tsb/16"].SymbolTable;
+	const getWrapper = __import["tsb/17"].getWrapper;
+	const SymbolTable = __import["tsb/17"].SymbolTable;
 	const {execSync} = require("child_process");
-	const moveOneIn = __import["tsb/17"].moveOneIn;
-	const overwriteFiles = __import["tsb/17"].overwriteFiles;
+	const moveOneIn = __import["tsb/18"].moveOneIn;
+	const overwriteFiles = __import["tsb/18"].overwriteFiles;
 	const {minify} = require("uglify-js");
 	const createPackage = __import["1.0.1/yapm/2"].createPackage;
 	const output = __import["1.0.0/fast-cli/2"];
@@ -933,6 +974,9 @@ bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "1.0.1/y
 	            copyTree(path.join(cwd, "build", "header"), path.join(tmp), ".d.ts");
 	            if (!dynamic) {
 	                fs.copyFileSync(path.join(cwd, "build", config.name + ".c.js"), path.join(tmp, config.name + ".c.js"));
+	            }
+	            if (fs.existsSync(path.join(cwd, "package.json")) && fs.statSync(path.join(cwd, "package.json")).isFile()) {
+	                fs.copyFileSync(path.join(cwd, "package.json"), path.join(tmp, "package.json"));
 	            }
 	            output.writeln_log("", true);
 	            let file = createPackage(tmp, (msg) => {
@@ -1104,12 +1148,12 @@ bundler.define("tsb/12", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "1.0.1/y
 	__export["tsb/12"].Compile = Compile;
 });
 // M:\langs\bun\tsb-new\build\src\commands\Generate.js
-bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16", "1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/16", "tsb/17", "1.0.0/fast-cli/2"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
 	const checkProjectConfigExists = __import["1.0.1/yapm/0"].checkProjectConfigExists;
-	const cwd = __import["tsb/15"].cwd;
-	const getResourcesWrapper = __import["tsb/16"].getResourcesWrapper;
+	const cwd = __import["tsb/16"].cwd;
+	const getResourcesWrapper = __import["tsb/17"].getResourcesWrapper;
 	const output = __import["1.0.0/fast-cli/2"];
 	const path = require("path");
 	const fs = require("fs");
@@ -1133,7 +1177,7 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16"
 	                if (fs.statSync(path.join(p, value)).isDirectory()) {
 	                    entries.push(...lookupTree(path.join(p, value)));
 	                }
-	                else if (fs.statSync(path.join(p, value)).isFile() && !value.endsWith(".yapm.tar")) {
+	                else if (fs.statSync(path.join(p, value)).isFile() && !value.endsWith(".yapm.zip")) {
 	                    output.writeln_log(`Found "${path.join(p, value)}"`, true);
 	                    entries.push(path.join(p, value));
 	                }
@@ -1146,7 +1190,6 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16"
 	        }
 	        output.writeln_log("Lookup for files");
 	        let files = lookupTree(p);
-	        console.log(files);
 	        let content = getResourcesWrapper();
 	        let rHeader = {};
 	        let r = {};
@@ -1154,7 +1197,7 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16"
 	        output.writeln_log("Registers files");
 	        files.forEach((file, index, array) => {
 	            output.writeln_log(`Register [${index + 1}|${array.length}] ${index} => "${file}"`, true);
-	            let base = file.replace(p + "\\", "");
+	            let base = file.replace(path.join(p), "");
 	            let parts = base.split("\\");
 	            function updateObj(parts, r, rHeader, conversion) {
 	                let key = parts.shift();
@@ -1233,16 +1276,20 @@ bundler.define("tsb/13", ["1.0.0/fast-cli/0", "1.0.1/yapm/0", "tsb/15", "tsb/16"
 	__export["tsb/13"].Generate = Generate;
 });
 // M:\langs\bun\tsb-new\build\src\commands\Init.js
-bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1", "tsb/15", "tsb/16"], async (__export, __import) => {
+bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1", "tsb/16", "tsb/17"], async (__export, __import) => {
 	const Command = __import["1.0.0/fast-cli/0"].Command;
 	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
 	const decision = __import["1.0.0/fast-cli/1"].decision;
 	const readline = __import["1.0.0/fast-cli/1"].readline;
 	const writeConfig = __import["1.0.1/yapm/1"].writeConfig;
-	const cwd = __import["tsb/15"].cwd;
-	const createTSConfig = __import["tsb/16"].createTSConfig;
+	const cwd = __import["tsb/16"].cwd;
+	const createTSConfig = __import["tsb/17"].createTSConfig;
+	const getGitignore = __import["tsb/17"].getGitignore;
+	const getReleaseYML = __import["tsb/17"].getReleaseYML;
 	const fs = require("fs");
 	const path = require("path");
+	const child_process = require("child_process");
+	
 	
 	
 	
@@ -1262,7 +1309,7 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1"
 	        process.stdout.write("License (MIT): ");
 	        let license = await readline();
 	        license = license == "" ? "MIT" : license;
-	        process.stdout.write("Create Git Action for publishment?");
+	        process.stdout.write("Create Git-Action for publishment? (y|n)");
 	        let gitAction = await decision();
 	        writeConfig(cwd, {
 	            name: name,
@@ -1280,6 +1327,10 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1"
 	            if (!fs.existsSync(workflowFolder) || !fs.statSync(workflowFolder).isDirectory()) {
 	                fs.mkdirSync(workflowFolder);
 	            }
+	            fs.writeFileSync(path.join(workflowFolder, "release.yml"), getReleaseYML());
+	            child_process.execSync("git init");
+	            process.stdout.write("Notice the remote repository must have the same name as your project\n");
+	            fs.writeFileSync(path.join(cwd, ".gitignore"), getGitignore());
 	        }
 	        createTSConfig(cwd);
 	        if (!fs.existsSync(path.join(cwd, "src")) || fs.statSync(path.join(cwd, "src")).isFile()) {
@@ -1301,8 +1352,159 @@ bundler.define("tsb/11", ["1.0.0/fast-cli/0", "1.0.0/fast-cli/1", "1.0.1/yapm/1"
 	__export["tsb/11"] = {};
 	__export["tsb/11"].Init = Init;
 });
+// M:\langs\bun\tsb-new\build\src\commands\Publish.js
+bundler.define("tsb/14", ["1.0.0/fast-cli/0", "tsb/16", "1.0.1/yapm/1", "1.0.0/fast-cli/2"], async (__export, __import) => {
+	const Command = __import["1.0.0/fast-cli/0"].Command;
+	const CommandConstructor = __import["1.0.0/fast-cli/0"].CommandConstructor;
+	const cwd = __import["tsb/16"].cwd;
+	const readConfig = __import["1.0.1/yapm/1"].readConfig;
+	const writeConfig = __import["1.0.1/yapm/1"].writeConfig;
+	const path = require("path");
+	const fs = require("fs");
+	const output = __import["1.0.0/fast-cli/2"];
+	const child_process = require("child_process");
+	
+	
+	
+	
+	
+	
+	
+	class Publish extends Command {
+	    async execute(argv) {
+	        let config = readConfig(cwd);
+	        let githubFolder = path.join(cwd, ".github");
+	        if (!fs.existsSync(githubFolder) || !fs.statSync(githubFolder).isDirectory()) {
+	            output.writeln_error("Publishment to GitHub is not enabled");
+	            output.writeln_error("To enable it enter: tsb enable --github-publish", true);
+	            return 1;
+	        }
+	        let workflowFolder = path.join(githubFolder, "workflows");
+	        if (!fs.existsSync(workflowFolder) || !fs.statSync(workflowFolder).isDirectory()) {
+	            output.writeln_error("Publishment to GitHub is not enabled");
+	            output.writeln_error("To enable it enter: tsb enable --github-publish", true);
+	            return 1;
+	        }
+	        let releaseFile = path.join(workflowFolder, "release.yml");
+	        if (!fs.existsSync(releaseFile) || !fs.statSync(releaseFile).isFile()) {
+	            output.writeln_error("Publishment to GitHub is not enabled");
+	            output.writeln_error("To enable it enter: tsb enable --github-publish", true);
+	            return 1;
+	        }
+	        let increment = argv.getAttr("-v");
+	        if (increment.match(/([0-9]+|x)\.([0-9]+|x)\.([0-9]+|x)\s*/g) == null) {
+	            output.writeln_error("Increment has the wrong format");
+	            return 1;
+	        }
+	        let increments = [];
+	        let allX = true;
+	        for (const value of increment.split(".")) {
+	            if (value == "x") {
+	                increments.push(0);
+	                continue;
+	            }
+	            let x;
+	            if (!isNaN((x = parseInt(value)))) {
+	                if (x <= 0) {
+	                    output.writeln_error("Cannot increment with zero");
+	                    return 1;
+	                }
+	                increments.push(x);
+	                allX = false;
+	            }
+	            else {
+	                output.writeln_error("Undefined number \"" + value + "\" in increment");
+	                return 1;
+	            }
+	        }
+	        if (allX) {
+	            output.writeln_error("Increment string must contain at least one number");
+	            return 1;
+	        }
+	        let versions = [];
+	        for (const value of config.version.split(".")) {
+	            let x;
+	            if (!isNaN((x = parseInt(value)))) {
+	                versions.push(x);
+	            }
+	            else {
+	                output.writeln_error("Undefined number \"" + value + "\" in config version");
+	                return 1;
+	            }
+	        }
+	        if (config.version.match(/[0-9]+\.[0-9]+\.[0-9]+\s*/g) == null) {
+	            output.writeln_error("config version has the wrong format");
+	            return 1;
+	        }
+	        let force = argv.hasFlag("--force");
+	        output.writeln_log("git => Commit update " + config.version);
+	        if (!await this.executeCMD(`git commit -a -m "Create release ${config.version}"`)) {
+	            if (!force) {
+	                return 1;
+	            }
+	        }
+	        output.writeln_log("git => Commit push " + config.version);
+	        if (!await this.executeCMD(`git push`)) {
+	            if (!force) {
+	                return 1;
+	            }
+	        }
+	        output.writeln_log("git => Create tag " + config.version);
+	        if (!await this.executeCMD("git tag " + config.version)) {
+	            if (!force) {
+	                return 1;
+	            }
+	        }
+	        output.writeln_log("git => Push tags");
+	        if (!await this.executeCMD("git push --tags")) {
+	            if (!force) {
+	                return 1;
+	            }
+	        }
+	        let newVersion = "";
+	        for (let i = 0; i < versions.length; i++) {
+	            if (i != 0) {
+	                newVersion += ".";
+	            }
+	            if (increments[i] != 0 && i + 1 < versions.length) {
+	                versions[i + 1] = 0;
+	            }
+	            newVersion += versions[i] + increments[i];
+	        }
+	        output.writeln_log(`Updated ${config.version} -> ${newVersion}`);
+	        config.version = newVersion;
+	        writeConfig(cwd, config);
+	        return 0;
+	    }
+	    async executeCMD(cmd) {
+	        return new Promise(resolve => {
+	            child_process.exec(cmd, (error, stdout, stderr) => {
+	                if (!!error && !!error.code && error.code == 1) {
+	                    output.writeln_error("Could not execute \"" + cmd + "\"");
+	                    output.writeln_error("Message: " + error.message, true);
+	                    output.writeln_error("         " + stdout, true);
+	                    resolve(false);
+	                }
+	                resolve(true);
+	            });
+	        });
+	    }
+	    getCMD() {
+	        return new CommandConstructor("publish")
+	            .addFlag("--github", false, "Publish to GitHub")
+	            .addAttribute("-v", "version", false, "Increment the version of your project e.g. before = 1.4.0 increment = x.x.1 after = 1.4.1, before 1.4.1 increment = x.1.x after = 1.5.0")
+	            .addFlag("--force", true, "Force a release generation");
+	    }
+	    getDescription() {
+	        return "Publish the project to GitHub when github release is enabled";
+	    }
+	}
+	
+	__export["tsb/14"] = {};
+	__export["tsb/14"].Publish = Publish;
+});
 // M:\langs\bun\tsb-new\build\src\compiler.js
-bundler.define("tsb/17", ["1.0.0/fast-cli/2"], async (__export, __import) => {
+bundler.define("tsb/18", ["1.0.0/fast-cli/2"], async (__export, __import) => {
 	const fs = require("fs");
 	const path = require("path");
 	const os = require("os");
@@ -1543,15 +1745,15 @@ bundler.define("tsb/17", ["1.0.0/fast-cli/2"], async (__export, __import) => {
 	    return c;
 	}
 	
-	__export["tsb/17"] = {};
-	__export["tsb/17"].overwriteFiles = overwriteFiles;
-	__export["tsb/17"].overwriteFile = overwriteFile;
-	__export["tsb/17"].moveOneIn = moveOneIn;
+	__export["tsb/18"] = {};
+	__export["tsb/18"].overwriteFiles = overwriteFiles;
+	__export["tsb/18"].overwriteFile = overwriteFile;
+	__export["tsb/18"].moveOneIn = moveOneIn;
 });
 // M:\langs\bun\tsb-new\build\src\helper.js
-bundler.define("tsb/16", ["tsb/18"], async (__export, __import) => {
-	const load_resources = __import["tsb/18"].load_resources;
-	const R = __import["tsb/18"].R;
+bundler.define("tsb/17", ["tsb/19"], async (__export, __import) => {
+	const load_resources = __import["tsb/19"].load_resources;
+	const R = __import["tsb/19"].R;
 	const fs = require("fs");
 	const path = require("path");
 	
@@ -1565,6 +1767,12 @@ bundler.define("tsb/16", ["tsb/18"], async (__export, __import) => {
 	}
 	function getResourcesWrapper() {
 	    return load_resources(R.wrapper.res_ts);
+	}
+	function getReleaseYML() {
+	    return load_resources(R.git.release_yml);
+	}
+	function getGitignore() {
+	    return load_resources(R.git.gitignore_txt);
 	}
 	class SymbolTable {
 	    constructor(config) {
@@ -1586,18 +1794,35 @@ bundler.define("tsb/16", ["tsb/18"], async (__export, __import) => {
 	    }
 	}
 	
-	__export["tsb/16"] = {};
-	__export["tsb/16"].createTSConfig = createTSConfig;
-	__export["tsb/16"].getWrapper = getWrapper;
-	__export["tsb/16"].getResourcesWrapper = getResourcesWrapper;
-	__export["tsb/16"].SymbolTable = SymbolTable;
+	__export["tsb/17"] = {};
+	__export["tsb/17"].createTSConfig = createTSConfig;
+	__export["tsb/17"].getWrapper = getWrapper;
+	__export["tsb/17"].getResourcesWrapper = getResourcesWrapper;
+	__export["tsb/17"].getReleaseYML = getReleaseYML;
+	__export["tsb/17"].getGitignore = getGitignore;
+	__export["tsb/17"].SymbolTable = SymbolTable;
 });
 // M:\langs\bun\tsb-new\build\src\resources.js
-bundler.define("tsb/18", [], async (__export, __import) => {
+bundler.define("tsb/19", [], async (__export, __import) => {
+	const {atob} = require("buffer");
+	
 	const data = new Map();
+	function decode(data) {
+	    if (typeof atob == "undefined") {
+	        if (typeof Buffer == "undefined") {
+	            throw "Cannot decode resources no atop and no Buffer class declared";
+	        }
+	        else {
+	            return Buffer.from(data, "base64").toString("utf-8");
+	        }
+	    }
+	    else {
+	        return atob(data);
+	    }
+	}
 	function load_resources(id) {
 	    if (data.has(id.id)) {
-	        return atob(data.get(id.id));
+	        return decode(data.get(id.id));
 	    }
 	    throw "Resources not declared";
 	}
@@ -1605,36 +1830,46 @@ bundler.define("tsb/18", [], async (__export, __import) => {
 	    return data.has(id.id);
 	}
 	const R = {
+	    git: {
+	        gitignore_txt: {
+	            id: 0
+	        },
+	        release_yml: {
+	            id: 1
+	        }
+	    },
 	    templates: {
 	        ts_config_json: {
-	            id: 0
+	            id: 2
 	        }
 	    },
 	    wrapper: {
 	        bundler_js: {
-	            id: 1
+	            id: 3
 	        },
 	        res_ts: {
-	            id: 2
+	            id: 4
 	        }
 	    }
 	};
+	data.set(R.git.gitignore_txt.id, "bGliDQpub2RlX21vZHVsZXMNCmJ1aWxkDQo=");
+	data.set(R.git.release_yml.id, "bmFtZTogUmVsZWFzZQ0KDQpvbjoNCiAgcHVzaDoNCiAgICB0YWdzOg0KICAgICAgLSAiKiINCg0Kam9iczoNCiAgYnVpbGQ6DQogICAgbmFtZTogQnVpbGQNCiAgICBydW5zLW9uOiB3aW5kb3dzLWxhdGVzdA0KICAgIHN0ZXBzOg0KICAgICAgLSB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHYzDQoNCiAgICAgIC0gbmFtZTogQ3JlYXRlIHJlbGVhc2UgcGFja2FnZQ0KICAgICAgICB1c2VzOiBhY3Rpb25zL3NldHVwLW5vZGVAdjMNCiAgICAgICAgd2l0aDoNCiAgICAgICAgICBub2RlX3ZlcnNpb246IDE2LngNCiAgICAgIC0gcnVuOiBucG0gaW5zdGFsbCAtLWdsb2JhbCB0eXBlc2NyaXB0DQogICAgICAtIHJ1bjogbnBtIGluc3RhbGwgLS1nbG9iYWwgaHR0cHM6Ly9naXRodWIuY29tL0NocmlzdG9waC1Lb3NjaGVsL3RzYi5naXQNCiAgICAgIC0gcnVuOiBucG0gaW5zdGFsbCAtLWdsb2JhbCBodHRwczovL2dpdGh1Yi5jb20vQ2hyaXN0b3BoLUtvc2NoZWwveWFwbS1jbGkuZ2l0DQogICAgICAtIHJ1bjogbnBtIGluc3RhbGwNCiAgICAgIC0gcnVuOiB5YXBtIGluc3RhbGwNCiAgICAgIC0gcnVuOiB0c2IgY29tcGlsZSAtLWxpYiAtLW1pbmlmeQ0KDQogICAgICAtIG5hbWU6IENyZWF0ZSBHaXRIdWIgUmVsZWFzZQ0KICAgICAgICBpZDogY3JlYXRlLXJlbGVhc2UNCiAgICAgICAgdXNlczogYWN0aW9ucy9jcmVhdGUtcmVsZWFzZUB2MQ0KICAgICAgICBlbnY6DQogICAgICAgICAgR0lUSFVCX1RPS0VOOiAke3sgc2VjcmV0cy5HSVRIVUJfVE9LRU4gfX0NCiAgICAgICAgd2l0aDoNCiAgICAgICAgICB0YWdfbmFtZTogJHt7IGdpdGh1Yi5yZWYgfX0NCiAgICAgICAgICByZWxlYXNlX25hbWU6ICR7eyBnaXRodWIucmVmIH19DQogICAgICAtIG5hbWU6IFVwbG9hZCByZWxlYXNlIGFzc2V0cw0KICAgICAgICB1c2VzOiBhY3Rpb25zL3VwbG9hZC1yZWxlYXNlLWFzc2V0QHYxDQogICAgICAgIGVudjoNCiAgICAgICAgICBHSVRIVUJfVE9LRU46ICR7eyBzZWNyZXRzLkdJVEhVQl9UT0tFTiB9fQ0KICAgICAgICB3aXRoOg0KICAgICAgICAgIHVwbG9hZF91cmw6ICR7eyBzdGVwcy5jcmVhdGUtcmVsZWFzZS5vdXRwdXRzLnVwbG9hZF91cmwgfX0NCiAgICAgICAgICBhc3NldF9wYXRoOiAuLyR7eyBnaXRodWIuZXZlbnQucmVwb3NpdG9yeS5uYW1lIH19LSR7eyBnaXRodWIucmVmX25hbWUgfX0ueWFwbS56aXANCiAgICAgICAgICBhc3NldF9uYW1lOiAke3sgZ2l0aHViLmV2ZW50LnJlcG9zaXRvcnkubmFtZSB9fS0ke3sgZ2l0aHViLnJlZl9uYW1lIH19LnlhcG0uemlwDQogICAgICAgICAgYXNzZXRfY29udGVudF90eXBlOiBhcHBsaWNhdGlvbi96aXA=");
 	data.set(R.templates.ts_config_json.id, "ew0KICAiY29tcGlsZXJPcHRpb25zIjogew0KICAgICJ0YXJnZXQiOiAiZXMyMDIwIiwNCiAgICAibW9kdWxlIjogImVzMjAyMCIsDQogICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsDQogICAgImRlY2xhcmF0aW9uIjogdHJ1ZSwNCiAgICAicmVtb3ZlQ29tbWVudHMiOiB0cnVlLA0KICAgICJvdXREaXIiOiAiYnVpbGQvc3JjIiwNCiAgICAiZGVjbGFyYXRpb25EaXIiOiAiYnVpbGQvaGVhZGVyIiwNCiAgICAicGF0aHMiOiB7DQogICAgICAiQHlhcG0vKiI6IFsiLi9saWIvKiJdDQogICAgfQ0KDQogIH0sDQogICJleGNsdWRlIjogWw0KICAgICJsaWIiLA0KICAgICJhc3NldHMiLA0KICAgICJub2RlX21vZHVsZXMiDQogIF0NCn0=");
 	data.set(R.wrapper.bundler_js.id, "InVzZSBzdHJpY3QiOw0KDQpjbGFzcyBUU0J1bmRsZXIgew0KICAgIGNvbnN0cnVjdG9yKCkgew0KICAgICAgICB0aGlzLmxvYWRlZCA9IG5ldyBNYXAoKTsNCiAgICAgICAgdGhpcy5tb2R1bGVzID0gbmV3IE1hcCgpOw0KICAgICAgICB0aGlzLmF1dG9sb2FkID0gW107DQogICAgfQ0KDQogICAgZGVmaW5lKG5hbWUsIGltcG9ydHMsIGNiKSB7DQogICAgICAgIHRoaXMubW9kdWxlcy5zZXQobmFtZSwgew0KICAgICAgICAgICAgaW1wb3J0czogaW1wb3J0cywNCiAgICAgICAgICAgIGNiOiBjYg0KICAgICAgICB9KTsNCiAgICB9DQoNCiAgICBsb2FkKG5hbWUpIHsNCiAgICAgICAgdGhpcy5hdXRvbG9hZC5wdXNoKG5hbWUpOw0KICAgIH0NCg0KICAgIGFzeW5jIHN0YXJ0KCkgew0KICAgICAgICBmb3IgKGNvbnN0IGxvYWQgb2YgdGhpcy5hdXRvbG9hZCkgew0KICAgICAgICAgICAgYXdhaXQgdGhpcy5sb2FkUGFja2FnZShsb2FkKTsNCiAgICAgICAgfQ0KICAgIH0NCg0KICAgIGFzeW5jIGxvYWRQYWNrYWdlKG5hbWUpIHsNCiAgICAgICAgaWYgKHRoaXMubW9kdWxlcy5oYXMobmFtZSkpIHsNCiAgICAgICAgICAgIGlmICh0aGlzLmxvYWRlZC5oYXMobmFtZSkpIHsNCiAgICAgICAgICAgICAgICByZXR1cm4gdGhpcy5sb2FkZWQuZ2V0KG5hbWUpOw0KICAgICAgICAgICAgfQ0KICAgICAgICAgICAgbGV0IG1vZCA9IHRoaXMubW9kdWxlcy5nZXQobmFtZSk7DQogICAgICAgICAgICBpZiAobW9kID09IHVuZGVmaW5lZCkgew0KICAgICAgICAgICAgICAgIHJldHVybiB7fTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIGxldCBfX2ltcG9ydCA9IHt9Ow0KICAgICAgICAgICAgZm9yIChjb25zdCByZXEgb2YgbW9kLmltcG9ydHMpIHsNCiAgICAgICAgICAgICAgICBsZXQgcmVxSW1wb3J0ID0gYXdhaXQgdGhpcy5sb2FkUGFja2FnZShyZXEpOw0KICAgICAgICAgICAgICAgIE9iamVjdC5rZXlzKHJlcUltcG9ydCkuZm9yRWFjaCgodmFsdWUpID0+IHsNCiAgICAgICAgICAgICAgICAgICAgX19pbXBvcnRbdmFsdWVdID0gcmVxSW1wb3J0W3ZhbHVlXTsNCiAgICAgICAgICAgICAgICB9KTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIGxldCBfX2V4cG9ydCA9IHt9Ow0KICAgICAgICAgICAgYXdhaXQgbW9kLmNiKF9fZXhwb3J0LCBfX2ltcG9ydCk7DQogICAgICAgICAgICB0aGlzLmxvYWRlZC5zZXQobmFtZSwgX19leHBvcnQpOw0KICAgICAgICAgICAgcmV0dXJuIF9fZXhwb3J0Ow0KICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgdGhyb3cgIk5vIHBhY2thZ2Ugd2l0aCB0aGUgaWQgXCIiICsgbmFtZSArICJcIiBkZWZpbmVkIjsNCiAgICAgICAgfQ0KICAgIH0NCn0NCg0KY29uc3QgYnVuZGxlciA9IG5ldyBUU0J1bmRsZXIoKTsNCg==");
-	data.set(R.wrapper.res_ts.id, "dHlwZSBSZXNvdXJjZXNJRCA9IHsNCiAgICBpZDogbnVtYmVyOw0KfQ0KDQpjb25zdCBkYXRhOiBNYXA8bnVtYmVyLCBzdHJpbmc+ID0gbmV3IE1hcDxudW1iZXIsIHN0cmluZz4oKTsNCg0KZXhwb3J0IGZ1bmN0aW9uIGxvYWRfcmVzb3VyY2VzKGlkOiBSZXNvdXJjZXNJRCk6IHN0cmluZyB7DQogICAgaWYgKGRhdGEuaGFzKGlkLmlkKSkgew0KICAgICAgICByZXR1cm4gYXRvYig8c3RyaW5nPmRhdGEuZ2V0KGlkLmlkKSk7DQogICAgfQ0KICAgIHRocm93ICJSZXNvdXJjZXMgbm90IGRlY2xhcmVkIjsNCn0NCg0KZXhwb3J0IGZ1bmN0aW9uIGhhc19yZXNvdXJjZXMoaWQ6IFJlc291cmNlc0lEKTogYm9vbGVhbiB7DQogICAgcmV0dXJuIGRhdGEuaGFzKGlkLmlkKTsNCn0NCg0K");
+	data.set(R.wrapper.res_ts.id, "aW1wb3J0IHthdG9ifSBmcm9tICJidWZmZXIiOw0KDQp0eXBlIFJlc291cmNlc0lEID0gew0KICAgIGlkOiBudW1iZXI7DQp9DQoNCmNvbnN0IGRhdGE6IE1hcDxudW1iZXIsIHN0cmluZz4gPSBuZXcgTWFwPG51bWJlciwgc3RyaW5nPigpOw0KDQpmdW5jdGlvbiBkZWNvZGUoZGF0YTogc3RyaW5nKTogc3RyaW5nIHsNCiAgICBpZiAodHlwZW9mIGF0b2IgPT0gInVuZGVmaW5lZCIpIHsNCiAgICAgICAgaWYgKHR5cGVvZiBCdWZmZXIgPT0gInVuZGVmaW5lZCIpIHsNCiAgICAgICAgICAgIHRocm93ICJDYW5ub3QgZGVjb2RlIHJlc291cmNlcyBubyBhdG9wIGFuZCBubyBCdWZmZXIgY2xhc3MgZGVjbGFyZWQiOw0KICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgcmV0dXJuIEJ1ZmZlci5mcm9tKGRhdGEsICJiYXNlNjQiKS50b1N0cmluZygidXRmLTgiKTsNCiAgICAgICAgfQ0KICAgIH0gZWxzZSB7DQogICAgICAgIHJldHVybiBhdG9iKGRhdGEpOw0KICAgIH0NCn0NCg0KZXhwb3J0IGZ1bmN0aW9uIGxvYWRfcmVzb3VyY2VzKGlkOiBSZXNvdXJjZXNJRCk6IHN0cmluZyB7DQogICAgaWYgKGRhdGEuaGFzKGlkLmlkKSkgew0KICAgICAgICByZXR1cm4gZGVjb2RlKDxzdHJpbmc+ZGF0YS5nZXQoaWQuaWQpKTsNCiAgICB9DQogICAgdGhyb3cgIlJlc291cmNlcyBub3QgZGVjbGFyZWQiOw0KfQ0KDQpleHBvcnQgZnVuY3Rpb24gaGFzX3Jlc291cmNlcyhpZDogUmVzb3VyY2VzSUQpOiBib29sZWFuIHsNCiAgICByZXR1cm4gZGF0YS5oYXMoaWQuaWQpOw0KfQ0KDQo=");
 	
-	__export["tsb/18"] = {};
-	__export["tsb/18"].load_resources = load_resources;
-	__export["tsb/18"].has_resources = has_resources;
-	__export["tsb/18"].R = R;
+	__export["tsb/19"] = {};
+	__export["tsb/19"].load_resources = load_resources;
+	__export["tsb/19"].has_resources = has_resources;
+	__export["tsb/19"].R = R;
 });
 // M:\langs\bun\tsb-new\build\src\utils.js
-bundler.define("tsb/15", [], async (__export, __import) => {
+bundler.define("tsb/16", [], async (__export, __import) => {
 	const cwd = process.cwd();
 	
-	__export["tsb/15"] = {};
-	__export["tsb/15"].cwd = cwd;
+	__export["tsb/16"] = {};
+	__export["tsb/16"].cwd = cwd;
 });
 // Entry point call
-bundler.load("tsb/14");
+bundler.load("tsb/15");
 bundler.start();

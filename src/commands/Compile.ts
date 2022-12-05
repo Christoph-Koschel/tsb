@@ -84,6 +84,10 @@ export class Compile extends Command {
                 fs.copyFileSync(path.join(cwd, "build", config.name + ".c.js"), path.join(tmp, config.name + ".c.js"));
             }
 
+            if (fs.existsSync(path.join(cwd, "package.json")) && fs.statSync(path.join(cwd, "package.json")).isFile()) {
+                fs.copyFileSync(path.join(cwd, "package.json"), path.join(tmp, "package.json"));
+            }
+
             output.writeln_log("", true);
             let file = createPackage(tmp, (msg) => {
                 output.writeln_log(msg);

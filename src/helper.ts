@@ -15,9 +15,13 @@ export function getResourcesWrapper(): string {
     return load_resources(R.wrapper.res_ts);
 }
 
-// export function getReleaseYAML(): string {
-//
-// }
+export function getReleaseYML(): string {
+    return load_resources(R.git.release_yml);
+}
+
+export function getGitignore(): string {
+    return load_resources(R.git.gitignore_txt);
+}
 
 export class SymbolTable {
     private files: Map<string, string>

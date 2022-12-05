@@ -20,7 +20,7 @@ export class Generate extends Command {
             fs.readdirSync(p).forEach(value => {
                 if (fs.statSync(path.join(p, value)).isDirectory()) {
                     entries.push(...lookupTree(path.join(p, value)));
-                } else if (fs.statSync(path.join(p, value)).isFile() && !value.endsWith(".yapm.tar")) {
+                } else if (fs.statSync(path.join(p, value)).isFile() && !value.endsWith(".yapm.zip")) {
                     output.writeln_log(`Found "${path.join(p, value)}"`, true);
                     entries.push(path.join(p, value));
                 }
@@ -37,8 +37,6 @@ export class Generate extends Command {
         output.writeln_log("Lookup for files");
         let files = lookupTree(p);
 
-        console.log(files);
-
         let content = getResourcesWrapper();
         let rHeader: any = {};
         let r: any = {};
@@ -47,7 +45,7 @@ export class Generate extends Command {
         output.writeln_log("Registers files");
         files.forEach((file, index, array) => {
             output.writeln_log(`Register [${index + 1}|${array.length}] ${index} => "${file}"`, true);
-            let base: string = file.replace(p + "\\", "");
+            let base: string = file.replace(path.join(p), "");
             let parts: string[] = base.split("\\");
 
             function updateObj(parts: string[], r: any, rHeader: any, conversion: any) {

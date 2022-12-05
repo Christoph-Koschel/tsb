@@ -2,9 +2,10 @@ import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0
 import {decision, readline} from "@yapm/fast-cli/1.0.0/input";
 import {writeConfig} from "@yapm/yapm/1.0.1/project";
 import {cwd} from "../utils";
-import {createTSConfig} from "../helper";
+import {createTSConfig, getGitignore, getReleaseYML} from "../helper";
 import * as fs from "fs";
 import * as path from "path";
+import * as child_process from "child_process";
 
 export class Init extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {
@@ -22,7 +23,7 @@ export class Init extends Command {
         let license = await readline();
         license = license == "" ? "MIT" : license;
 
-        process.stdout.write("Create Git Action for publishment?");
+        process.stdout.write("Create Git-Action for publishment? (y|n)");
         let gitAction = await decision();
 
         writeConfig(cwd, {
@@ -46,7 +47,10 @@ export class Init extends Command {
                 fs.mkdirSync(workflowFolder);
             }
 
-
+            fs.writeFileSync(path.join(workflowFolder, "release.yml"), getReleaseYML());
+            child_process.execSync("git init");
+            process.stdout.write("Notice the remote repository must have the same name as your project\n");
+            fs.writeFileSync(path.join(cwd, ".gitignore"), getGitignore());
         }
 
         createTSConfig(cwd);
