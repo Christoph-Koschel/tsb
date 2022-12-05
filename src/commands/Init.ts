@@ -2,10 +2,9 @@ import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0
 import {decision, readline} from "@yapm/fast-cli/1.0.0/input";
 import {writeConfig} from "@yapm/yapm/1.0.1/project";
 import {cwd} from "../utils";
-import {createTSConfig, getGitignore, getReleaseYML} from "../helper";
+import {createTSConfig, enableGithubAction} from "../helper";
 import * as fs from "fs";
 import * as path from "path";
-import * as child_process from "child_process";
 
 export class Init extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {
@@ -35,22 +34,8 @@ export class Init extends Command {
         });
 
         if (gitAction) {
-            let githubFolder = path.join(cwd, ".github");
-
-            if (!fs.existsSync(githubFolder) || !fs.statSync(githubFolder).isDirectory()) {
-                fs.mkdirSync(githubFolder);
-            }
-
-            let workflowFolder = path.join(githubFolder, "workflows");
-
-            if (!fs.existsSync(workflowFolder) || !fs.statSync(workflowFolder).isDirectory()) {
-                fs.mkdirSync(workflowFolder);
-            }
-
-            fs.writeFileSync(path.join(workflowFolder, "release.yml"), getReleaseYML());
-            child_process.execSync("git init");
+            enableGithubAction();
             process.stdout.write("Notice the remote repository must have the same name as your project\n");
-            fs.writeFileSync(path.join(cwd, ".gitignore"), getGitignore());
         }
 
         createTSConfig(cwd);

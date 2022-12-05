@@ -2,6 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
 import {load_resources, R} from "./resources";
+import {cwd} from "./utils";
+import * as child_process from "child_process";
 
 export function createTSConfig(cwd: string) {
     fs.writeFileSync(path.join(cwd, "tsconfig.json"), load_resources(R.templates.ts_config_json));
@@ -48,5 +50,25 @@ export class SymbolTable {
 
     private isLib(file: string): boolean {
         return file.startsWith("@yapm");
+    }
+}
+
+export function enableGithubAction() {
+    let githubFolder = path.join(cwd, ".github");
+
+    if (!fs.existsSync(githubFolder) || !fs.statSync(githubFolder).isDirectory()) {
+        fs.mkdirSync(githubFolder);
+    }
+
+    let workflowFolder = path.join(githubFolder, "workflows");
+
+    if (!fs.existsSync(workflowFolder) || !fs.statSync(workflowFolder).isDirectory()) {
+        fs.mkdirSync(workflowFolder);
+    }
+
+    fs.writeFileSync(path.join(workflowFolder, "release.yml"), getReleaseYML());
+    child_process.execSync("git init");
+    if (!fs.existsSync(path.join(cwd, ".gitignore")) || !fs.statSync(path.join(cwd, ".gitignore")).isFile()) {
+        fs.writeFileSync(path.join(cwd, ".gitignore"), getGitignore());
     }
 }
