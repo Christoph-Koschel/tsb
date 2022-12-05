@@ -19,7 +19,7 @@ jobs:
       - run: npm install --global typescript
       - run: npm install --global https://github.com/Christoph-Koschel/tsb.git
       - run: npm install --global https://github.com/Christoph-Koschel/yapm-cli.git
-      - run: npm install
+      - run: if (Test-Path ./package.json) { npm install }
       - run: yapm install
       - run: tsb compile --lib --minify
 
