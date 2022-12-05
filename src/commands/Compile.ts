@@ -38,7 +38,7 @@ export class Compile extends Command {
                 writeStream = res.code;
             }
         } else {
-            writeStream.replace(/(\r\n|\r|\n)+/gm, "\n");
+            writeStream.replace(/(\r\n|\r|\n|\t|\s)+/gm, "\n");
         }
 
         output.writeln_log("Save output");

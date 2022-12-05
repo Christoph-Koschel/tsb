@@ -1,18 +1,23 @@
 {
-  "name": "tsb",
-  "author": "Christoph Koschel",
-  "version": "1.0.0",
-  "license": "MIT",
-  "dependencies": [
-    {
-      "name": "fast-cli",
-      "version": "1.0.0",
-      "resolve": "..\\fast-cli\\fast-cli-1.0.0.yapm.zip"
-    },
-    {
-      "name": "yapm",
-      "version": "1.0.1",
-      "resolve": "..\\yapm\\yapm-1.0.1.yapm.zip"
-    }
-  ]
+    "name": "tsb",
+    "author": "Christoph Koschel",
+    "version": "1.0.0",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "fast-cli",
+            "version": "1.0.0",
+            "resolve": "..\\fast-cli\\fast-cli-1.0.0.yapm.zip"
+        },
+        {
+            "name": "yapm",
+            "version": "1.0.1",
+            "resolve": "..\\yapm\\yapm-1.0.1.yapm.zip"
+        },
+        {
+            "name": "code-database",
+            "version": "1.0.0",
+            "resolve": "..\\code-database\\code-database-1.0.0.yapm.zip"
+        }
+    ]
 }

@@ -2,7 +2,7 @@ import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0
 import {decision, readline} from "@yapm/fast-cli/1.0.0/input";
 import {writeConfig} from "@yapm/yapm/1.0.1/project";
 import {cwd} from "../utils";
-import {createTSConfig, enableGithubAction} from "../helper";
+import {createTSConfig, enableGithubAction, getPackageJSON} from "../helper";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -25,6 +25,9 @@ export class Init extends Command {
         process.stdout.write("Create Git-Action for publishment? (y|n)");
         let gitAction = await decision();
 
+        process.stdout.write("Create package.json? (y|n)");
+        let packageJSON = await decision();
+
         writeConfig(cwd, {
             name: name,
             author: author,
@@ -36,6 +39,10 @@ export class Init extends Command {
         if (gitAction) {
             enableGithubAction();
             process.stdout.write("Notice the remote repository must have the same name as your project\n");
+        }
+
+        if (packageJSON) {
+            fs.writeFileSync(path.join(cwd, "package.json"), getPackageJSON(name, author, version, license));
         }
 
         createTSConfig(cwd);

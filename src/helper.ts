@@ -4,6 +4,7 @@ import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
 import {load_resources, R} from "./resources";
 import {cwd} from "./utils";
 import * as child_process from "child_process";
+import {format} from "@yapm/code-database/1.0.0/text";
 
 export function createTSConfig(cwd: string) {
     fs.writeFileSync(path.join(cwd, "tsconfig.json"), load_resources(R.templates.ts_config_json));
@@ -23,6 +24,10 @@ export function getReleaseYML(): string {
 
 export function getGitignore(): string {
     return load_resources(R.git.gitignore_txt);
+}
+
+export function getPackageJSON(name: string, author: string, version: string, license: string): string {
+    return format(load_resources(R.npm.package_json), name, author, version, license);
 }
 
 export class SymbolTable {
