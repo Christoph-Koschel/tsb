@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create release package
+        uses: actions/setup-node@v3
+        with:
+          node_version: 16.x
+      - run: npm install --global typescript
+      - run: npm install --global https://github.com/Christoph-Koschel/tsb.git
+      - run: npm install --global https://github.com/Christoph-Koschel/yapm-cli.git
+      - run: npm install
+      - run: yapm install
+      - run: tsb compile --lib --minify
+
+      - name: Create GitHub Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./${{ github.event.repository.name }}-${{ github.ref_name }}.yapm.zip
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}.yapm.zip
+          asset_content_type: application/zip
