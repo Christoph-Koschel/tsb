@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
+import {YAPMConfig, YAPMConfigDependencies} from "@yapm/yapm/1.0.1/types";
 import {load_resources, R} from "./resources";
 import {cwd} from "./utils";
 import * as child_process from "child_process";
@@ -76,4 +76,87 @@ export function enableGithubAction() {
     if (!fs.existsSync(path.join(cwd, ".gitignore")) || !fs.statSync(path.join(cwd, ".gitignore")).isFile()) {
         fs.writeFileSync(path.join(cwd, ".gitignore"), getGitignore());
     }
+}
+
+export function regeneratePathPrefixes(config: YAPMConfig): boolean {
+    let tsconfig;
+
+    try {
+        tsconfig = JSON.parse(fs.readFileSync(path.join(cwd, "tsconfig.json"), "utf-8"));
+    } catch (err) {
+        return false;
+    }
+
+    let obj: any = {
+        "@yapm/*": ["./lib/*"]
+    }
+
+    let registeredPackages = [];
+
+    for (let dependency of config.dependencies) {
+        if (registeredPackages.includes(dependency.name)) {
+            continue;
+        }
+
+        let last = getLastVersion(config.dependencies, dependency.name);
+        registeredPackages.push(dependency.name);
+        obj[`@yapm/${dependency.name}/l/*`] = [`@yapm/${dependency.name}/${last}/*`];
+    }
+
+    tsconfig.paths = obj;
+    fs.writeFileSync(path.join(cwd, "tsconfig.json"), JSON.stringify(tsconfig, null, 4));
+    return true;
+}
+
+function isHigher(a: number[], b: number[]): boolean {
+    if (a[0] > b[0]) {
+        return false;
+    }
+
+    if (a[1] > b[1]) {
+        return false;
+    }
+
+    if (a[2] > b[2]) {
+        return false;
+    }
+
+    return true;
+}
+
+function splitVersionString(version: string): number[] | false {
+    if (version.match(/[0-9]+\.[0-9]+\.[0-9]+\s*/g) == null) {
+        return false;
+    }
+
+    let parts = version.split(".");
+    let numbers: number[] = [];
+    parts.forEach((value) => numbers.push(parseInt(value)));
+    return numbers;
+}
+
+function getLastVersion(dependencies: YAPMConfigDependencies[], name: string): string {
+    let highest: YAPMConfigDependencies | null;
+
+    dependencies.forEach((dependency) => {
+        if (dependency.name == name) {
+            if (highest == null) {
+                if (splitVersionString(dependency.version)) {
+                    highest = dependency;
+                }
+            } else {
+                let a = splitVersionString(highest.version);
+                let b = splitVersionString(dependency.version);
+                if (!a || !b) {
+                    return;
+                }
+
+                if (isHigher(a, b)) {
+                    highest = dependency;
+                }
+            }
+        }
+    });
+
+    return highest.version;
 }

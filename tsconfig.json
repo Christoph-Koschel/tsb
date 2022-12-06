@@ -1,21 +1,38 @@
 {
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "es2020",
-    "moduleResolution": "node",
-    "declaration": true,
-    "removeComments": true,
-    "outDir": "build/src",
-    "declarationDir": "build/header",
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "es2020",
+        "moduleResolution": "node",
+        "declaration": true,
+        "removeComments": true,
+        "outDir": "build/src",
+        "declarationDir": "build/header",
+        "paths": {
+            "@yapm/code-database/latest/*": [
+                "./lib/code-database/1.0.0/*"
+            ],
+            "@yapm/*": [
+                "./lib/*"
+            ]
+        }
+    },
+    "exclude": [
+        "lib",
+        "node_modules",
+        "assets"
+    ],
     "paths": {
-      "@yapm/*": [
-        "./lib/*"
-      ]
+        "@yapm/*": [
+            "./lib/*"
+        ],
+        "@yapm/fast-cli/l/*": [
+            "@yapm/fast-cli/1.0.0/*"
+        ],
+        "@yapm/yapm/l/*": [
+            "@yapm/yapm/1.0.1/*"
+        ],
+        "@yapm/code-database/l/*": [
+            "@yapm/code-database/1.0.0/*"
+        ]
     }
-  },
-  "exclude": [
-    "lib",
-    "node_modules",
-    "assets"
-  ]
 }

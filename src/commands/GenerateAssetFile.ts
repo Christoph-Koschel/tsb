@@ -6,7 +6,7 @@ import * as path from "path";
 import * as fs from "fs";
 import {getResourcesWrapper} from "../helper";
 
-export class Generate extends Command {
+export class GenerateAssetFile extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {
         if (!checkProjectConfigExists(cwd)) {
             output.writeln_error("No project initialized");
@@ -131,5 +131,4 @@ export class Generate extends Command {
     getDescription(): string {
         return "Bundles non TypesScript / JavaScript files and produces a resources.ts file in the root of the src folder";
     }
-
 }
