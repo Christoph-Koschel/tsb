@@ -1,6 +1,6 @@
 import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import {checkProjectConfigExists} from "@yapm/yapm/l/structure";
-import {cwd} from "../utils";
+import {cwd, TSBConfig} from "../utils";
 import * as output from "@yapm/fast-cli/l/output";
 import {YAPMConfig} from "@yapm/yapm/l/types";
 import {readConfig} from "@yapm/yapm/l/project";
@@ -27,7 +27,7 @@ export class Compile extends Command {
             output.writeln_log("Clean up old build");
             fs.rmSync(path.join(cwd, "build"), {recursive: true});
         }
-        let {writeStream, symbols, library, dynamic, resolveFiles} = this.compileFiles(config, argv);
+        let {writeStream, symbols, library, dynamic} = this.compileFiles(config, argv);
 
         if (argv.hasFlag("--minify")) {
             output.writeln_log("Minify code");
@@ -44,12 +44,12 @@ export class Compile extends Command {
         output.writeln_log("Save output");
         fs.writeFileSync(path.join(cwd, "build", config.name + ".c.js"), writeStream);
 
-        this.generateLibrary(library, resolveFiles, symbols, config, dynamic);
+        this.generateLibrary(library, symbols, config, dynamic);
 
         return 0;
     }
 
-    private generateLibrary(library: boolean, resolveFiles: (p: string, extension?: string, excludeCompilerFiles?: boolean) => string[], symbols: SymbolTable, config: YAPMConfig, dynamic: boolean) {
+    private generateLibrary(library: boolean, symbols: SymbolTable, config: YAPMConfig, dynamic: boolean) {
         if (library) {
             let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "tsb"));
 
@@ -57,7 +57,7 @@ export class Compile extends Command {
 
             let c: any = {};
 
-            const files = resolveFiles(path.join(cwd, "build", "src"));
+            const files = this.resolveFiles(path.join(cwd, "build", "src"));
 
             files.forEach(file => {
                 const key = file.replace(/\\/gi, "/").replace(path.join(cwd, "build", "src").replace(/\\/gi, "/"), "");
@@ -86,6 +86,31 @@ export class Compile extends Command {
 
             if (fs.existsSync(path.join(cwd, "package.json")) && fs.statSync(path.join(cwd, "package.json")).isFile()) {
                 fs.copyFileSync(path.join(cwd, "package.json"), path.join(tmp, "package.json"));
+            }
+
+            {
+                let tsbConfig: TSBConfig = config;
+                if (!!tsbConfig.copy) {
+                    Object.keys(tsbConfig.copy).forEach((key) => {
+                        if (!path.isAbsolute(key)) {
+                            key = path.join(cwd, key);
+                        }
+                        let dest = tsbConfig.copy[key];
+                        if (dest.startsWith("..")) {
+                            dest = dest.substring(2);
+                        }
+
+                        if (dest.startsWith(".")) {
+                            dest = dest.substring(1);
+                        }
+
+                        if (!fs.existsSync(path.join(tmp, dest)) || fs.statSync(path.join(tmp, dest)).isFile()) {
+                            fs.mkdirSync(path.join(tmp, dest), {recursive: true});
+                        }
+
+                        fs.copyFileSync(key, path.join(tmp, dest));
+                    });
+                }
             }
 
             output.writeln_log("", true);
@@ -117,28 +142,14 @@ export class Compile extends Command {
             encoding: "utf8"
         });
 
-        function resolveFiles(p: string, extension: string = ".js", excludeCompilerFiles: boolean = true): string[] {
-            let files: string[] = [];
-            fs.readdirSync(p).forEach((entry) => {
-                let x = path.join(p, entry);
-                if (fs.statSync(x).isDirectory()) {
-                    files.push(...resolveFiles(x));
-                } else if (x.endsWith(extension) && (!x.endsWith(".c.js") || !excludeCompilerFiles)) {
-                    files.push(x);
-                }
-            });
-
-            return files;
-        }
-
-        let files: string[] = resolveFiles(path.join(cwd, "build", "src"));
+        let files: string[] = this.resolveFiles(path.join(cwd, "build", "src"));
         if (!library) {
             writeStream += (getWrapper());
 
             fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
                 for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
                     let p = path.join(cwd, "lib", lib, version);
-                    const files = resolveFiles(p, ".c.js", false);
+                    const files = this.resolveFiles(p, ".c.js", false);
                     output.writeln_log(`Checkup ${lib}@${version}`);
                     files.forEach(file => {
                         output.writeln_log(`Write ${file}`, true);
@@ -224,7 +235,7 @@ export class Compile extends Command {
         if (!library) {
             writeStream += ("bundler.start();");
         }
-        return {writeStream, symbols, library, dynamic, resolveFiles};
+        return {writeStream, symbols, library, dynamic};
     }
 
     private initLibraries(config: YAPMConfig, symbols: SymbolTable) {
@@ -254,6 +265,20 @@ export class Compile extends Command {
                 }
             });
         }
+    }
+
+    private resolveFiles(p: string, extension: string = ".js", excludeCompilerFiles: boolean = true): string[] {
+        let files: string[] = [];
+        fs.readdirSync(p).forEach((entry) => {
+            let x = path.join(p, entry);
+            if (fs.statSync(x).isDirectory()) {
+                files.push(...this.resolveFiles(x));
+            } else if (x.endsWith(extension) && (!x.endsWith(".c.js") || !excludeCompilerFiles)) {
+                files.push(x);
+            }
+        });
+
+        return files;
     }
 
     getCMD(): CommandConstructor {
