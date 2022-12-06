@@ -1,6 +1,6 @@
 import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
 import {cwd} from "../utils";
-import {getResourcesWrapper, regeneratePathPrefixes} from "../helper";
+import {regeneratePathPrefixes} from "../helper";
 import {readConfig} from "@yapm/yapm/1.0.1/project";
 
 export class GenerateConfigFile extends Command {

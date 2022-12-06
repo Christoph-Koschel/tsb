@@ -4,7 +4,7 @@ import {cwd} from "../utils";
 import * as output from "@yapm/fast-cli/1.0.0/output";
 import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
 import {readConfig} from "@yapm/yapm/1.0.1/project";
-import {getWrapper, SymbolTable} from "../helper";
+import {getLastVersion, getWrapper, SymbolTable} from "../helper";
 import {execSync} from "child_process";
 import {moveOneIn, overwriteFiles} from "../compiler";
 import {minify, MinifyOptions, MinifyOutput} from "uglify-js";
@@ -104,7 +104,7 @@ export class Compile extends Command {
         const library: boolean = argv.hasFlag("--lib");
         const writeComments: boolean = !argv.hasFlag("--no-comments") && !library;
         const dynamic: boolean = argv.hasFlag("--dynamic");
-        this.initLibraries(symbols);
+        this.initLibraries(config, symbols);
 
         output.writeln_log("", true);
         output.writeln_log("==== COMPILE PROJECT ====")
@@ -227,20 +227,25 @@ export class Compile extends Command {
         return {writeStream, symbols, library, dynamic, resolveFiles};
     }
 
-    private initLibraries(symbols: SymbolTable) {
+    private initLibraries(config: YAPMConfig, symbols: SymbolTable) {
         output.writeln_log("Search for libraries");
         if (fs.existsSync(path.join(cwd, "lib")) && fs.statSync(path.join(cwd, "lib")).isDirectory()) {
             fs.readdirSync(path.join(cwd, "lib")).forEach((lib) => {
+                let lastVersion = getLastVersion(config.dependencies, lib);
+
                 for (const version of fs.readdirSync(path.join(cwd, "lib", lib))) {
                     let p = path.join(cwd, "lib", lib, version);
                     if (fs.existsSync(path.join(p, "tsb.json")) && fs.statSync(path.join(p, "tsb.json")).isFile()) {
                         try {
                             output.writeln_log(`Found ${lib}@${version}`, true);
+
                             let x = JSON.parse(fs.readFileSync(path.join(p, "tsb.json"), "utf8"));
                             Object.keys(x).forEach((key) => {
                                 let parsed = path.parse(key);
-
                                 symbols.set(`@yapm/${lib}/${version}${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
+                                if (lastVersion == version) {
+                                    symbols.set(`@yapm/${lib}/l${parsed.dir + (parsed.dir == "/" ? "" : "/") + parsed.name}`, x[key]);
+                                }
                             });
                         } catch (err) {
                             break;

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import {CLI} from "@yapm/fast-cli/1.0.0/parser";
+
+import {CLI} from "@yapm/fast-cli/l/parser";
 import * as output from "@yapm/fast-cli/1.0.0/output";
 import {Colors} from "@yapm/fast-cli/1.0.0/output";
 import {Init} from "../commands/Init";

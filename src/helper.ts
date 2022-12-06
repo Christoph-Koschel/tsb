@@ -87,9 +87,7 @@ export function regeneratePathPrefixes(config: YAPMConfig): boolean {
         return false;
     }
 
-    let obj: any = {
-        "@yapm/*": ["./lib/*"]
-    }
+    let obj: any = {}
 
     let registeredPackages = [];
 
@@ -100,10 +98,12 @@ export function regeneratePathPrefixes(config: YAPMConfig): boolean {
 
         let last = getLastVersion(config.dependencies, dependency.name);
         registeredPackages.push(dependency.name);
-        obj[`@yapm/${dependency.name}/l/*`] = [`@yapm/${dependency.name}/${last}/*`];
+        obj[`@yapm/${dependency.name}/l/*`] = [`./lib/${dependency.name}/${last}/*`];
     }
 
-    tsconfig.paths = obj;
+    obj["@yapm/*"] = ["./lib/*"];
+
+    tsconfig.compilerOptions.paths = obj;
     fs.writeFileSync(path.join(cwd, "tsconfig.json"), JSON.stringify(tsconfig, null, 4));
     return true;
 }
@@ -135,7 +135,7 @@ function splitVersionString(version: string): number[] | false {
     return numbers;
 }
 
-function getLastVersion(dependencies: YAPMConfigDependencies[], name: string): string {
+export function getLastVersion(dependencies: YAPMConfigDependencies[], name: string): string {
     let highest: YAPMConfigDependencies | null;
 
     dependencies.forEach((dependency) => {
