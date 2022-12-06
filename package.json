@@ -1,19 +1,19 @@
 {
-  "name": "tsb",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
-  },
-  "author": "Christoph Koschel",
-  "license": "MIT",
-  "bin": {
-    "tsb": "contract/tsb.c.js"
-  },
-  "dependencies": {
-    "@types/adm-zip": "^0.5.0",
-    "@types/node": "^18.11.9",
-    "@types/uglify-js": "^3.17.1",
-    "adm-zip": "^0.5.9",
-    "uglify-js": "^3.17.4"
-  }
+    "name": "tsb",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+    },
+    "author": "Christoph Koschel",
+    "license": "MIT",
+    "bin": {
+        "tsb": "contract/tsb.c.js"
+    },
+    "dependencies": {
+        "@types/adm-zip": "^0.5.0",
+        "@types/node": "^18.11.9",
+        "@types/uglify-js": "^3.17.1",
+        "adm-zip": "^0.5.9",
+        "uglify-js": "^3.17.4"
+    }
 }

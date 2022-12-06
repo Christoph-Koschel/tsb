@@ -19,5 +19,8 @@
             "version": "1.0.0",
             "resolve": "..\\code-database\\code-database-1.0.0.yapm.zip"
         }
-    ]
+    ],
+    "copy": {
+        ".gitignore": "config/git/"
+    }
 }
