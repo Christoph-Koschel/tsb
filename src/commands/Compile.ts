@@ -92,10 +92,11 @@ export class Compile extends Command {
                 let tsbConfig: TSBConfig = config;
                 if (!!tsbConfig.copy) {
                     Object.keys(tsbConfig.copy).forEach((key) => {
+                        let dest = tsbConfig.copy[key];
                         if (!path.isAbsolute(key)) {
                             key = path.join(cwd, key);
                         }
-                        let dest = tsbConfig.copy[key];
+
                         if (dest.startsWith("..")) {
                             dest = dest.substring(2);
                         }
@@ -108,7 +109,7 @@ export class Compile extends Command {
                             fs.mkdirSync(path.join(tmp, dest), {recursive: true});
                         }
 
-                        fs.copyFileSync(key, path.join(tmp, dest));
+                        fs.copyFileSync(key, path.join(tmp, dest, path.basename(key)));
                     });
                 }
             }
