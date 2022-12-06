@@ -1,11 +1,11 @@
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import {cwd} from "../utils";
 import * as path from "path";
 import * as fs from "fs";
-import * as output from "@yapm/fast-cli/1.0.0/output";
+import * as output from "@yapm/fast-cli/l/output";
 import * as child_process from "child_process";
-import {readConfig, writeConfig} from "@yapm/yapm/1.0.1/project";
-import {YAPMConfig} from "@yapm/yapm/1.0.1/types";
+import {readConfig, writeConfig} from "@yapm/yapm/l/project";
+import {YAPMConfig} from "@yapm/yapm/l/types";
 
 export class Publish extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {

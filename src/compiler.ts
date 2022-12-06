@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import * as output from "@yapm/fast-cli/1.0.0/output";
+import * as output from "@yapm/fast-cli/l/output";
 
 const importObjRegex = /(import\s{1,}{.*}\s{1,}from\s*".*"\s*;)|(import\s{1,}{.*}\s{1,}from\s".{1,}")/gi;
 const importBundleRegex = /(import\s{1,}\*\s{1,}as\s{1,}\w{1,}\s{1,}from\s{1,}".*"\s*;)|(import\s*\*\s{1,}as\s{1,}\w{1,}\s{1,}from\s{1,}".*")/gi;

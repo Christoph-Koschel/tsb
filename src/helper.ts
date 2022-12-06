@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
-import {YAPMConfig, YAPMConfigDependencies} from "@yapm/yapm/1.0.1/types";
+import {YAPMConfig, YAPMConfigDependencies} from "@yapm/yapm/l/types";
 import {load_resources, R} from "./resources";
 import {cwd} from "./utils";
 import * as child_process from "child_process";
-import {format} from "@yapm/code-database/1.0.0/text";
+import {format} from "@yapm/code-database/l/text";
 
 export function createTSConfig(cwd: string) {
     fs.writeFileSync(path.join(cwd, "tsconfig.json"), load_resources(R.templates.ts_config_json));

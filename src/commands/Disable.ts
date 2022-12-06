@@ -1,8 +1,8 @@
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import * as path from "path";
 import {cwd} from "../utils";
 import * as fs from "fs";
-import * as output from "@yapm/fast-cli/1.0.0/output";
+import * as output from "@yapm/fast-cli/l/output";
 
 export class Disable extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {

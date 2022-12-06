@@ -1,6 +1,6 @@
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
-import {decision, readline} from "@yapm/fast-cli/1.0.0/input";
-import {writeConfig} from "@yapm/yapm/1.0.1/project";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
+import {decision, readline} from "@yapm/fast-cli/l/input";
+import {writeConfig} from "@yapm/yapm/l/project";
 import {cwd} from "../utils";
 import {createTSConfig, enableGithubAction, getPackageJSON} from "../helper";
 import * as fs from "fs";

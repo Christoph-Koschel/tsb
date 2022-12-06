@@ -1,7 +1,7 @@
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import {cwd} from "../utils";
 import {regeneratePathPrefixes} from "../helper";
-import {readConfig} from "@yapm/yapm/1.0.1/project";
+import {readConfig} from "@yapm/yapm/l/project";
 
 export class GenerateConfigFile extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {

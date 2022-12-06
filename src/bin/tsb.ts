@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import {CLI} from "@yapm/fast-cli/l/parser";
-import * as output from "@yapm/fast-cli/1.0.0/output";
-import {Colors} from "@yapm/fast-cli/1.0.0/output";
+import * as output from "@yapm/fast-cli/l/output";
+import {Colors} from "@yapm/fast-cli/l/output";
 import {Init} from "../commands/Init";
 import {Compile} from "../commands/Compile";
 import {GenerateAssetFile} from "../commands/GenerateAssetFile";

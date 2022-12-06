@@ -1,8 +1,8 @@
-import {installPackage} from "@yapm/yapm/1.0.1/packages";
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
-import {readConfig} from "@yapm/yapm/1.0.1/project";
+import {installPackage} from "@yapm/yapm/l/packages";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
+import {readConfig} from "@yapm/yapm/l/project";
 import {cwd} from "../utils";
-import * as output from "@yapm/fast-cli/1.0.0/output";
+import * as output from "@yapm/fast-cli/l/output";
 import * as fs from "fs";
 import * as path from "path";
 import {regeneratePathPrefixes} from "../helper";

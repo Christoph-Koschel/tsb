@@ -1,4 +1,4 @@
-import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/1.0.0/handler";
+import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import {enableGithubAction, getGitignore, getReleaseYML} from "../helper";
 
 export class Enable extends Command {
