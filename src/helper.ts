@@ -160,3 +160,8 @@ export function getLastVersion(dependencies: YAPMConfigDependencies[], name: str
 
     return highest.version;
 }
+
+export function replaceAt(input: string, search: string | RegExp, replace: string, start: number) {
+    return input.slice(0, start)
+        + input.slice(start).replace(search, replace);
+}

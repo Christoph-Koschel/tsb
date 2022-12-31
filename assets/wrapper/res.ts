@@ -1,5 +1,3 @@
-import {atob} from "buffer";
-
 type ResourcesID = {
     id: number;
 }
@@ -8,9 +6,11 @@ const data: Map<number, string> = new Map<number, string>();
 
 function decode(data: string): string {
     if (typeof atob == "undefined") {
+        // @ts-ignore
         if (typeof Buffer == "undefined") {
             throw "Cannot decode resources no atop and no Buffer class declared";
         } else {
+            // @ts-ignore
             return Buffer.from(data, "base64").toString("utf-8");
         }
     } else {

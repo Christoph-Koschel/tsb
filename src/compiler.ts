@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import * as output from "@yapm/fast-cli/l/output";
+import {replaceAt} from "./helper";
 
 const importObjRegex = /(import\s{1,}{.*}\s{1,}from\s*".*"\s*;)|(import\s{1,}{.*}\s{1,}from\s".{1,}")/gi;
 const importBundleRegex = /(import\s{1,}\*\s{1,}as\s{1,}\w{1,}\s{1,}from\s{1,}".*"\s*;)|(import\s*\*\s{1,}as\s{1,}\w{1,}\s{1,}from\s{1,}".*")/gi;
@@ -207,7 +208,8 @@ function extractExports(content: string, file: string): [string, ExportType[]] {
     match = content.match(exportDefaultRegex);
     if (match != null) {
         match.forEach((exclude) => {
-            content = content.replace(/export\s{1,}default\s{1,}/gi, "");
+            let index = content.search(exclude);
+            content = replaceAt(content, /export\s{1,}default\s{1,}/gi, "", index);
             let words = exclude.split(" ");
             exports.push({
                 name: words[words.length - 1].trim(),
@@ -220,7 +222,8 @@ function extractExports(content: string, file: string): [string, ExportType[]] {
     match = content.match(exportAsyncRegex);
     if (match != null) {
         match.forEach((exclude) => {
-            content = content.replace(/export\s{1,}/gi, "");
+            let index = content.search(exclude);
+            content = replaceAt(content, /export\s{1,}/gi, "", index);
             let words = exclude.split(" ");
             exports.push({
                 name: words[words.length - 1].trim(),
@@ -233,7 +236,8 @@ function extractExports(content: string, file: string): [string, ExportType[]] {
     match = content.match(exportRegex);
     if (match != null) {
         match.forEach((exclude) => {
-            content = content.replace(/export\s{1,}/gi, "");
+            let index = content.search(exclude);
+            content = replaceAt(content, /export\s{1,}/gi, "", index);
             let words = exclude.split(" ");
             exports.push({
                 name: words[words.length - 1].trim(),
@@ -246,10 +250,10 @@ function extractExports(content: string, file: string): [string, ExportType[]] {
     match = content.match(exportNoneRegex);
     if (match != null) {
         match.forEach((exclude) => {
-            content = content.replace(exclude, "");
+            let index = content.search(exclude);
+            content = replaceAt(content, exclude, "", index);
         });
     }
-
     return [content, exports];
 }
 

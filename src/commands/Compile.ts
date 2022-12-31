@@ -1,6 +1,6 @@
 import {ArgumentHandler, Command, CommandConstructor} from "@yapm/fast-cli/l/handler";
 import {checkProjectConfigExists} from "@yapm/yapm/l/structure";
-import {cwd, TSBConfig} from "../utils";
+import {cwd, outputStream, TSBConfig} from "../utils";
 import * as output from "@yapm/fast-cli/l/output";
 import {YAPMConfig} from "@yapm/yapm/l/types";
 import {readConfig} from "@yapm/yapm/l/project";
@@ -115,9 +115,7 @@ export class Compile extends Command {
             }
 
             output.writeln_log("", true);
-            let file = createPackage(tmp, (msg) => {
-                output.writeln_log(msg);
-            });
+            let file = createPackage(tmp, outputStream);
 
             output.writeln_log("Copy tarball to the output");
             fs.copyFileSync(file, path.join(cwd, path.basename(file)));

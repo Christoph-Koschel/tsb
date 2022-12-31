@@ -5,6 +5,7 @@ import {cwd} from "../utils";
 import * as path from "path";
 import * as fs from "fs";
 import {getResourcesWrapper} from "../helper";
+import {select} from "@yapm/code-database/l/linq";
 
 export class GenerateAssetFile extends Command {
     async execute(argv: ArgumentHandler): Promise<number> {
@@ -69,6 +70,7 @@ export class GenerateAssetFile extends Command {
                 }
             }
 
+            parts = select(parts).all().where((x, i) => x != "").get();
             updateObj(parts.slice(), r, rHeader, conversion);
         });
 

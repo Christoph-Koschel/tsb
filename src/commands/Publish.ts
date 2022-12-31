@@ -86,14 +86,30 @@ export class Publish extends Command {
 
         let force = argv.hasFlag("--force");
 
-        output.writeln_log("git => Commit update " + config.version);
+        let newVersion = "";
+        for (let i = 0; i < versions.length; i++) {
+            if (i != 0) {
+                newVersion += ".";
+            }
+
+            if (increments[i] != 0 && i + 1 < versions.length) {
+                versions[i + 1] = 0;
+            }
+
+            newVersion += versions[i] + increments[i];
+        }
+        output.writeln_log(`Updated ${config.version} -> ${newVersion}`);
+        config.version = newVersion;
+        writeConfig(cwd, config);
+
+        output.writeln_log("git => Update version " + config.version);
         if (!await this.executeCMD(`git commit -a -m "Create release ${config.version}"`)) {
             if (!force) {
                 return 1;
             }
         }
 
-        output.writeln_log("git => Commit push " + config.version);
+        output.writeln_log("git => Push commit " + config.version);
         if (!await this.executeCMD(`git push`)) {
             if (!force) {
                 return 1;
@@ -112,22 +128,6 @@ export class Publish extends Command {
                 return 1;
             }
         }
-
-        let newVersion = "";
-        for (let i = 0; i < versions.length; i++) {
-            if (i != 0) {
-                newVersion += ".";
-            }
-
-            if (increments[i] != 0 && i + 1 < versions.length) {
-                versions[i + 1] = 0;
-            }
-
-            newVersion += versions[i] + increments[i];
-        }
-        output.writeln_log(`Updated ${config.version} -> ${newVersion}`);
-        config.version = newVersion;
-        writeConfig(cwd, config);
 
         return 0;
     }

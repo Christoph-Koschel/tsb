@@ -11,11 +11,11 @@
             "@yapm/fast-cli/l/*": [
                 "./lib/fast-cli/1.0.0/*"
             ],
-            "@yapm/yapm/l/*": [
-                "./lib/yapm/1.0.1/*"
-            ],
             "@yapm/code-database/l/*": [
-                "./lib/code-database/1.0.0/*"
+                "./lib/code-database/1.1.0/*"
+            ],
+            "@yapm/yapm/l/*": [
+                "./lib/yapm/1.1.0/*"
             ],
             "@yapm/*": [
                 "./lib/*"
