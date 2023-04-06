@@ -1,0 +1,15 @@
+{
+    "name": "tsb",
+    "version": "2.0.0",
+    "bin": {
+        "tsb": "./tsb.min.js"
+    },
+    "dependencies": {
+        "@types/node": "^18.15.5",
+        "@types/uglify-js": "^3.17.1",
+        "ts-morph": "^17.0.1",
+        "typescript": "^5.0.2",
+        "uglify-js": "^3.17.4"
+    },
+    "homepage": "https://hexa-studio.de"
+}

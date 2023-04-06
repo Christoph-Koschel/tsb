@@ -1,0 +1,104 @@
+{
+    "modules": {
+        "tsb": [
+            "src/utils/utils.ts",
+            "src/plugin/plugin.ts",
+            "src/core/bin/tsb.ts",
+            "src/core/config.ts",
+            "src/core/console.ts",
+            "src/core/context.ts",
+            "src/core/engine.ts",
+            "src/core/global.ts",
+            "src/core/output.ts",
+            "src/core/structure.ts",
+            "src/core/task.ts",
+            "src/core/tasks/build.ts",
+            "src/core/tasks/init.ts",
+            "src/core/tasks/sync.ts",
+            "src/core/transpiler.ts",
+            "src/core/types.ts",
+            "src/core/utils.ts"
+        ]
+    },
+    "loaders": {
+        "tsb": [
+            "./src/utils/utils.ts",
+            "./src/core/bin/tsb.ts"
+        ]
+    },
+    "queue": [
+        {
+            "kind": 1,
+            "information": {
+                "from": "./assets/config.ts",
+                "to": "./src/core",
+                "overwrite": true
+            }
+        },
+        {
+            "kind": 0,
+            "information": {
+                "moduleName": "tsb"
+            }
+        },
+        {
+            "kind": 1,
+            "information": {
+                "from": "./package.json",
+                "to": "./out",
+                "overwrite": true
+            }
+        },
+        {
+            "kind": 1,
+            "information": {
+                "from": "./package-lock.json",
+                "to": "./out",
+                "overwrite": true
+            }
+        },
+        {
+            "kind": 1,
+            "information": {
+                "from": "./node_modules",
+                "to": "./out",
+                "overwrite": true
+            }
+        },
+        {
+            "kind": 1,
+            "information": {
+                "from": "./assets",
+                "to": "./out",
+                "overwrite": true
+            }
+        },
+        {
+            "kind": 2,
+            "information": {
+                "target": "./out/assets/config.ts",
+                "recursive": false
+            }
+        },
+        {
+            "kind": 2,
+            "information": {
+                "target": "./out/assets/config.js.map",
+                "recursive": false
+            }
+        },
+        {
+            "kind": 2,
+            "information": {
+                "target": "./out/assets/config.d.ts.map",
+                "recursive": false
+            }
+        }
+    ],
+    "plugins": {
+        "tsb": {
+            "name": "tsb.minifier",
+            "parameters": []
+        }
+    }
+}
