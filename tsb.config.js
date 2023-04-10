@@ -13,15 +13,13 @@ builder.add_module("tsb", [
 builder.use(PLUGINS.UTILS.SHEBANG);
 builder.use(PLUGINS.UTILS.MINIFIER);
 
-
-
 // DON'T MODIFY THIS SECTION
 builder.createBuildQueue()
     .copy("./assets/config.ts", "./src/core", true)
     .compileModule("tsb")
     .copy("./package.json", "./out", true)
     .copy("./package-lock.json", "./out", true)
-    .copy("./node_modules", "./out", true)
+    // .copy("./node_modules", "./out", true) TODO temporally removed
     .copy("./assets", "./out", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")

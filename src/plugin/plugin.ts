@@ -1,11 +1,12 @@
 import {Serializable} from "../core/config";
 import {ModuleItem} from "../core/types";
-import {ClassDeclarationStructure} from "ts-morph";
+import {ClassDeclarationStructure, ModuleDeclarationStructure} from "ts-morph";
 
 export type PluginResultInformation = {
     outDir: string;
     outName: string;
     outPath: string;
+    engineDir: string;
 }
 
 export abstract class Plugin {
@@ -17,12 +18,16 @@ export abstract class Plugin {
 
     }
 
-    public generate(declaration: ClassDeclarationStructure): boolean {
-        return false;
+    public generate(): ClassDeclarationStructure[] {
+        return [];
     }
 
     public result(fileContent: string, information: PluginResultInformation): string | null {
         return null;
+    }
+
+    public sync(information: PluginResultInformation): void {
+        return;
     }
 }
 
@@ -42,5 +47,14 @@ export class PluginHandler {
         const plugin: Plugin = new (<Plugin>this.plugins.get(name)).constructor();
         plugin.init(parameters);
         return plugin;
+    }
+
+    public static names(): string {
+        let str: string[] = [];
+        this.plugins.forEach(value => {
+            str.push(value.name);
+        });
+
+        return str.join(", ") + this.plugins.size;
     }
 }

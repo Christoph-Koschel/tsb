@@ -8,6 +8,7 @@ var QueueKind;
     QueueKind[QueueKind["COMPILE_MODULE"] = 0] = "COMPILE_MODULE";
     QueueKind[QueueKind["COPY"] = 1] = "COPY";
     QueueKind[QueueKind["REMOVE"] = 2] = "REMOVE";
+    QueueKind[QueueKind["SYNC_PLUGIN"] = 3] = "SYNC_PLUGIN";
 })(QueueKind = exports.QueueKind || (exports.QueueKind = {}));
 class Serialization {
 }
@@ -186,6 +187,7 @@ class ConfigBuilder {
         const config = this.build();
         const plugins = {};
         for (let pluginKey in config.plugins) {
+            plugins[pluginKey] = [];
             config.plugins[pluginKey].forEach(information => {
                 const parameters = [];
                 information.parameters.forEach(value => {
@@ -196,10 +198,10 @@ class ConfigBuilder {
                         parameters.push(value);
                     }
                 });
-                plugins[pluginKey] = {
+                plugins[pluginKey].push({
                     name: information.name,
                     parameters: parameters
-                };
+                });
             });
         }
         fs.writeFileSync(filePath, JSON.stringify({
@@ -214,7 +216,8 @@ exports.ConfigBuilder = ConfigBuilder;
 exports.PLUGINS = {
     UTILS: {
         MINIFIER: "tsb.minifier",
-        SHEBANG: "tsb.shebang"
+        SHEBANG: "tsb.shebang",
+        TSX: "tsb.tsx"
     }
 };
 //# sourceMappingURL=config.js.map

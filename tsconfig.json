@@ -6,6 +6,7 @@
         "strict": true,
         "removeComments": true,
         "resolveJsonModule": true,
+        "jsx": "preserve",
         "lib": [
             "ES2022",
             "DOM"

@@ -31,10 +31,11 @@ export type PluginInformation = {
 export enum QueueKind {
     COMPILE_MODULE,
     COPY,
-    REMOVE
+    REMOVE,
+    SYNC_PLUGIN
 }
 
-export type QueueDataGroup = CopyData | RemoveData | CompileModuleData;
+export type QueueDataGroup = CopyData | RemoveData | CompileModuleData | SyncPluginData;
 
 export type CopyData = {
     from: string;
@@ -50,6 +51,8 @@ export type RemoveData = {
 export type CompileModuleData = {
     moduleName: string;
 }
+
+export type SyncPluginData = {}
 
 export type Queue<T> = QueueEntry<T>[];
 
@@ -281,8 +284,9 @@ export class ConfigBuilder {
     public write(filePath: string): void {
         const config: Config = this.build();
 
-        const plugins: { [Key in string]: PluginInformation } = {};
+        const plugins: { [Key in string]: PluginInformation[] } = {};
         for (let pluginKey in config.plugins) {
+            plugins[pluginKey] = [];
             config.plugins[pluginKey].forEach(information => {
                 const parameters: Serializable[] = [];
 
@@ -294,10 +298,10 @@ export class ConfigBuilder {
                     }
                 });
 
-                plugins[pluginKey] = {
+                plugins[pluginKey].push({
                     name: information.name,
                     parameters: parameters
-                }
+                });
             });
         }
 
@@ -313,11 +317,13 @@ export class ConfigBuilder {
 export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
-        SHEBANG: "tsb.shebang"
+        SHEBANG: "tsb.shebang",
+        TSX: "tsb.tsx"
     }
 } = {
     UTILS: {
         MINIFIER: "tsb.minifier",
-        SHEBANG: "tsb.shebang"
+        SHEBANG: "tsb.shebang",
+        TSX: "tsb.tsx"
     }
 }

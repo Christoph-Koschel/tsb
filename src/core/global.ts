@@ -1,4 +1,6 @@
 export const CWD: string = process.cwd();
+
+export const ENGINE_DIR: string = "engine";
 export const CONFIG_FILE: string = "tsb.config.js"
 
 export type BuildOptions = {

@@ -3,7 +3,7 @@ import {set_full_value, set_status, set_step_value, write_status_message} from "
 import {Color} from "./console";
 import * as fs from "fs";
 import * as path from "path";
-import {BUILD_OPTIONS, CWD} from "./global";
+import {BUILD_OPTIONS, CWD, ENGINE_DIR} from "./global";
 import {list_dirs, list_files} from "./utils";
 import {EmitOutput, OutputFile, SourceFile} from "ts-morph";
 import {compile_module} from "./transpiler";
@@ -20,7 +20,7 @@ export function compile_module_task(config: Config, information: CompileModuleDa
             const component: Plugin | null = PluginHandler.instantiate(plugin.name, plugin.parameters);
 
             if (!component) {
-                write_status_message(index, `ERROR: Cannot find the plugin '${plugin.name}'`)
+                write_status_message(index, `ERROR: Cannot find the plugin '${plugin.name}' found ${PluginHandler.names()}`)
                 set_status(index, "FAIL");
                 return;
             }
@@ -49,7 +49,8 @@ export function compile_module_task(config: Config, information: CompileModuleDa
         const resultInformation: PluginResultInformation = {
             outDir: path.dirname(result.getFilePath()),
             outName: path.basename(data.getFilePath()),
-            outPath: data.getFilePath()
+            outPath: data.getFilePath(),
+            engineDir: path.join(CWD, ENGINE_DIR)
         }
 
         for (let i: number = 0; i < plugins.length; i++) {

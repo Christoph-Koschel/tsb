@@ -6,6 +6,10 @@ import build from "../tasks/build";
 import sync from "../tasks/sync";
 import init from "../tasks/init";
 
+if (__dirname.endsWith("bin")) {
+    require("../../utils/utils");
+}
+
 Console.init();
 
 function usage(): void {

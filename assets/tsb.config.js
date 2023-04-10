@@ -1,4 +1,4 @@
-const {ConfigBuilder} = require("./config/config");
+const {ConfigBuilder} = require("./engine/config");
 let builder = new ConfigBuilder();
 
 // YOUR CONFIG

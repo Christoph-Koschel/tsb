@@ -1,6 +1,7 @@
 {
     "modules": {
         "tsb": [
+            "src/utils/tsx.ts",
             "src/utils/utils.ts",
             "src/plugin/plugin.ts",
             "src/core/bin/tsb.ts",
@@ -60,14 +61,6 @@
         {
             "kind": 1,
             "information": {
-                "from": "./node_modules",
-                "to": "./out",
-                "overwrite": true
-            }
-        },
-        {
-            "kind": 1,
-            "information": {
                 "from": "./assets",
                 "to": "./out",
                 "overwrite": true
@@ -96,9 +89,15 @@
         }
     ],
     "plugins": {
-        "tsb": {
-            "name": "tsb.minifier",
-            "parameters": []
-        }
+        "tsb": [
+            {
+                "name": "tsb.shebang",
+                "parameters": []
+            },
+            {
+                "name": "tsb.minifier",
+                "parameters": []
+            }
+        ]
     }
 }

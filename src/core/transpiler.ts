@@ -1,6 +1,5 @@
 import {
     ClassDeclaration,
-    ClassDeclarationStructure,
     CompilerOptions,
     EnumDeclaration,
     ExportedDeclarations,
@@ -29,18 +28,19 @@ import {CWD} from "./global";
 import {build_bundler, build_bundler_types} from "./engine";
 import {build_output} from "./structure";
 import {ExportReference, ImportKind, ImportReference, ImportReferenceItem, ModuleItem, SymbolType} from "./types";
-import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
-import {Plugin, PluginHandler} from "../plugin/plugin";
-import {PluginInformation} from "./config";
+import {set_full_value, set_step_value, write_status_message} from "./output";
+import {Plugin} from "../plugin/plugin";
 
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
 export const OPTIONS_SCRIPT_TARGET: "ES2022" = "ES2022";
+export const OPTIONS_JSX: "React" = "React";
 
 export const OPTIONS: CompilerOptions = {
     module: ModuleKind[OPTIONS_MODULE_KIND],
     moduleResolution: ModuleResolutionKind.NodeJs,
     removeComments: true,
     target: ScriptTarget[OPTIONS_SCRIPT_TARGET],
+    jsx: 2,
     strict: false
 }
 
@@ -227,7 +227,7 @@ export function extract_exports(module: ModuleItem): ExportReference[] {
     for (let [name, decs] of declarations) {
         let dec: ExportedDeclarations = decs[0];
 
-        let local = name;
+        let local: string = name;
 
         if (!(dec instanceof Expression)) {
             // @ts-ignore
@@ -282,7 +282,6 @@ export function compile_module(name: string, sources: string[], loaders: string[
     write_status_message(queueIndex, "Init new module");
     let project: Project = cnstr_project();
     let modules: ModuleItem[] = new Array<ModuleItem>(sources.length);
-    ;
 
     for (let i: number = 0; i < sources.length; i++) {
         set_step_value(queueIndex, Math.round(i * 100 / sources.length));
@@ -304,12 +303,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
     result.addStatements("const bundler: Bundler = new Bundler();");
 
     for (let i: number = 0; i < plugins.length; i++) {
-        const declaration: ClassDeclarationStructure = {
-            kind: StructureKind.Class
-        };
-        if (plugins[i].generate(declaration)) {
-            result.addClass(declaration);
-        }
+        plugins[i].generate().forEach(value => result.addClass(value));
     }
 
     for (let i: number = 0; i < modules.length; i++) {
@@ -369,7 +363,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
     for (let i: number = 0; i < modules.length; i++) {
         set_step_value(queueIndex, i * 100 / modules.length);
         write_status_message(queueIndex, `Convert '${modules[i].rawFilename}' to module item`);
-        const imports: ImportReference[] = extract_imports(modules[i], true);
+        const imports: ImportReference[] = extract_imports(modules[i]);
         const exports: ExportReference[] = extract_exports(modules[i]);
 
         remove_imports(modules[i]);

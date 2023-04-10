@@ -131,7 +131,7 @@ public modify(module: ModuleItem): void
 ```
 
 The `modify` method will be called after the interfaces and types have been separated from the files. You're free to
-modify the AST according to your needs, which includes the ability to add or remove imports as necessary.
+modify the AST according to your needs. However, it is no longer possible to add imports or exports.
 
 ```
 public result(fileContent: string, information: PluginResultInformation): string | null
@@ -146,6 +146,12 @@ public generate(declaration: ClassDeclarationStructure): boolean
 
 The `generate` method is used to implement any necessary resources in the output file. All resources are represented as
 a class to prevent function overwriting.
+
+```
+public sync(information: PluginResultInformation): void
+```
+
+The `sync` method is used to complete a specific task when using the sync command
 
 ------------------------
 

@@ -49,8 +49,11 @@ Or follow the costume build [tutorial](/Build.md)
 
 ## Authors
 
-- **Christoph Koschel** - *Programmer of the core system of TSB* -
-  [Christoph Koschel](https://github.com/Christoph-Koschel)
+- **[Christoph Koschel](https://github.com/Christoph-Koschel)**
+
+  &#45; *Programmer of the core system of TSB*
+
+  &#45; *Programmer of the utils plugins*
 
 ## License
 
