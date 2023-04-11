@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-
-import {Console} from "../console";
 import {shift} from "../utils";
 import build from "../tasks/build";
 import sync from "../tasks/sync";
@@ -10,19 +8,17 @@ if (__dirname.endsWith("bin")) {
     require("../../utils/utils");
 }
 
-Console.init();
-
 function usage(): void {
-    Console.writeLine("Usage tsb <command> [<options>]");
-    Console.writeLine("");
-    Console.writeLine("build [<options>]");
-    Console.writeLine("--write-ts  Write the typescript file to the output (This file is not 100% syntax secure).");
-    Console.writeLine("");
-    Console.writeLine("sync [<options>]");
-    Console.writeLine("");
-    Console.writeLine("init [<options>]");
-    Console.writeLine("");
-    Console.writeLine("help [<options>]");
+    console.log("Usage tsb <command> [<options>]");
+    console.log();
+    console.log("build [<options>]");
+    console.log("--write-ts  Write the typescript file to the output (This file is not 100% syntax secure).");
+    console.log();
+    console.log("sync [<options>]");
+    console.log();
+    console.log("init [<options>]");
+    console.log();
+    console.log("help [<options>]");
 }
 
 // Remove node and file path
@@ -44,5 +40,3 @@ if (command == "build") {
 } else if (command == "help") {
     usage();
 }
-
-Console.dispose();

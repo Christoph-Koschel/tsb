@@ -6,7 +6,6 @@
             "src/plugin/plugin.ts",
             "src/core/bin/tsb.ts",
             "src/core/config.ts",
-            "src/core/console.ts",
             "src/core/context.ts",
             "src/core/engine.ts",
             "src/core/global.ts",

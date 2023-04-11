@@ -13,7 +13,6 @@ import {
     Project,
     ScriptTarget,
     SourceFile,
-    StructureKind,
     SyntaxKind,
     ts,
     TypeAliasDeclaration,
@@ -28,7 +27,7 @@ import {CWD} from "./global";
 import {build_bundler, build_bundler_types} from "./engine";
 import {build_output} from "./structure";
 import {ExportReference, ImportKind, ImportReference, ImportReferenceItem, ModuleItem, SymbolType} from "./types";
-import {set_full_value, set_step_value, write_status_message} from "./output";
+import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
 import {Plugin} from "../plugin/plugin";
 
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
@@ -272,32 +271,35 @@ export function remove_exports(module: ModuleItem) {
     module.module.removeDefaultExport();
 }
 
-export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[], queueIndex: number): SourceFile {
-    set_full_value(queueIndex, 12);
-    write_status_message(queueIndex, "Build output");
+export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[]): SourceFile | null {
+    set_full_value(0.12);
+    write_status_message("Build output");
     build_output();
 
 
-    set_full_value(queueIndex, 24);
-    write_status_message(queueIndex, "Init new module");
+    set_full_value(0.24);
+    write_status_message("Init new module");
     let project: Project = cnstr_project();
     let modules: ModuleItem[] = new Array<ModuleItem>(sources.length);
 
     for (let i: number = 0; i < sources.length; i++) {
-        set_step_value(queueIndex, Math.round(i * 100 / sources.length));
-        write_status_message(queueIndex, `Add '${sources[i]}' to module`);
+        set_step_value(i / sources.length);
+        write_status_message(`Add '${sources[i]}' to module`);
         modules[i] = add_module_item(project, sources[i]);
     }
 
-    set_full_value(queueIndex, 36);
-    write_status_message(queueIndex, "Check diagnostics");
-    check_diagnostics(project);
+    set_full_value(0.36);
+    write_status_message("Check diagnostics");
+    if (!check_diagnostics(project)) {
+        set_status("FAIL");
+        return null;
+    }
 
     fs.writeFileSync(path.join(CWD, "out", name + ".ts"), "");
     let result: SourceFile = project.addSourceFileAtPath(path.join(CWD, "out", name + ".ts"));
 
-    set_full_value(queueIndex, 48);
-    write_status_message(queueIndex, "Compile engine");
+    set_full_value(0.48);
+    write_status_message("Compile engine");
     result.addTypeAliases(build_bundler_types());
     result.addClass(build_bundler());
     result.addStatements("const bundler: Bundler = new Bundler();");
@@ -307,8 +309,8 @@ export function compile_module(name: string, sources: string[], loaders: string[
     }
 
     for (let i: number = 0; i < modules.length; i++) {
-        set_step_value(queueIndex, i * 100 / modules.length);
-        write_status_message(queueIndex, `Extract type data in ${modules[i].rawFilename}`);
+        set_step_value(i / modules.length);
+        write_status_message(`Extract type data in ${modules[i].rawFilename}`);
         const imports: ImportReference[] = extract_imports(modules[i]);
         const namespaceName: string = trans_to_id(modules[i].filename).slice(1, -1);
 
@@ -359,10 +361,10 @@ export function compile_module(name: string, sources: string[], loaders: string[
         }
     }
 
-    set_full_value(queueIndex, 60);
+    set_full_value(0.60);
     for (let i: number = 0; i < modules.length; i++) {
-        set_step_value(queueIndex, i * 100 / modules.length);
-        write_status_message(queueIndex, `Convert '${modules[i].rawFilename}' to module item`);
+        set_step_value(i / modules.length);
+        write_status_message(`Convert '${modules[i].rawFilename}' to module item`);
         const imports: ImportReference[] = extract_imports(modules[i]);
         const exports: ExportReference[] = extract_exports(modules[i]);
 
@@ -477,12 +479,12 @@ export function compile_module(name: string, sources: string[], loaders: string[
         });
     }
 
-    set_full_value(queueIndex, 72);
+    set_full_value(0.72);
     result.addStatements(writer => {
         writer.writeLine("bundler.load(");
         loaders.forEach((value: string, index: number): void => {
-            set_step_value(queueIndex, index * 100 / loaders.length);
-            write_status_message(queueIndex, `Add loader of item '${trans_to_id(path.join(CWD, value))}'`);
+            set_step_value(index / loaders.length);
+            write_status_message(`Add loader of item '${trans_to_id(path.join(CWD, value))}'`);
             if (index != 0) {
                 writer.writeLine(", ");
             }

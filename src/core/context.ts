@@ -1,7 +1,7 @@
 import * as p from "path";
 import {Diagnostic, Node, Project, SourceFile, SyntaxKind} from "ts-morph";
 import {ImportReference, ModuleItem} from "./types";
-import {Console} from "./console";
+import {write_log} from "./output";
 
 const pairs: Map<string, string> = new Map<string, string>();
 
@@ -37,16 +37,15 @@ export function replace_type_name(module: ModuleItem, name: string, newName: str
     });
 }
 
-export function check_diagnostics(project: Project) {
+export function check_diagnostics(project: Project): boolean {
     const diagnostics: Diagnostic[] = project.getPreEmitDiagnostics();
     if (diagnostics.length == 0) {
-        return;
+        return true;
     }
 
+    write_log(project.formatDiagnosticsWithColorAndContext(diagnostics));
 
-    Console.writeLine(project.formatDiagnosticsWithColorAndContext(diagnostics));
-    Console.dispose();
-    process.exit(1);
+    return false;
 }
 
 export function compare_import(imp1: ImportReference, imp2: ImportReference): boolean {

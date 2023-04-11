@@ -38,7 +38,7 @@ export default function init(): void {
             "node_modules",
             "out"
         ]
-    }));
+    }, null, 4));
 
     make_folder("src");
     make_folder(ENGINE_DIR);
