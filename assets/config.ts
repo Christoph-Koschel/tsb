@@ -20,7 +20,7 @@ export type Config = {
     modules: { [Name in string]: string[] };
     loaders: { [Name in string]: string[] };
     plugins: { [Name in string]: PluginInformation[] };
-    queue: Queue<QueueDataGroup>;
+    queues: { [Name in string]: Queue<QueueDataGroup> };
 }
 
 export type PluginInformation = {
@@ -79,14 +79,15 @@ export class QueueBuilder {
     private readonly from: ConfigBuilder;
 
     private queue: Queue<QueueDataGroup>;
+    private name: string;
 
-
-    public constructor(from: ConfigBuilder) {
+    public constructor(from: ConfigBuilder, name: string) {
         this.from = from;
+        this.name = name;
         this.queue = [];
     }
 
-    public compileModule(module: string): this {
+    public compile_module(module: string): this {
         this.queue.push({
             kind: QueueKind.COMPILE_MODULE,
             information: {
@@ -123,7 +124,7 @@ export class QueueBuilder {
     }
 
     public done(): ConfigBuilder {
-        this.from.setQueue(this.queue);
+        this.from.set_queue(this.name, this.queue);
 
         return this.from;
     }
@@ -133,13 +134,13 @@ export class ConfigBuilder {
     private modules: Map<string, string[]>;
     private loaders: Map<string, string[]>;
     private plugins: Map<string, PluginInformation[]>;
-    private queue: Queue<QueueDataGroup> | false;
+    private queues: Map<string, Queue<QueueDataGroup>>
 
     constructor() {
         this.modules = new Map<string, string[]>();
         this.loaders = new Map<string, string[]>();
         this.plugins = new Map<string, PluginInformation[]>();
-        this.queue = false;
+        this.queues = new Map<string, Queue<QueueDataGroup>>();
     }
 
     private current: string | null = null;
@@ -232,12 +233,12 @@ export class ConfigBuilder {
         return this;
     }
 
-    public createBuildQueue(): QueueBuilder {
-        return new QueueBuilder(this);
+    public create_build_queue(name: string = "all"): QueueBuilder {
+        return new QueueBuilder(this, name);
     }
 
-    public setQueue(queue: Queue<QueueDataGroup>): void {
-        this.queue = queue;
+    public set_queue(name: string, queue: Queue<QueueDataGroup>): void {
+        this.queues.set(name, queue);
     }
 
     public build(): Config {
@@ -259,22 +260,29 @@ export class ConfigBuilder {
             plugins[key] = value;
         });
 
-        if (!this.queue) {
-            this.queue = []
+        if (this.queues.size == 0) {
+            const queue: Queue<QueueDataGroup> = []
 
             this.modules.forEach((value, key) => {
                 // @ts-ignore
-                this.queue.push({
+                queue.push({
                     kind: QueueKind.COMPILE_MODULE,
                     information: {
                         moduleName: key
                     }
                 });
+
+                this.queues.set("all", queue);
             });
         }
 
+        const queues: { [Name in string]: Queue<QueueDataGroup> } = {};
+        this.queues.forEach((value, key) => {
+            queues[key] = value;
+        });
+
         return {
-            queue: this.queue,
+            queues: queues,
             modules: modules,
             loaders: loaders,
             plugins: plugins
@@ -308,7 +316,7 @@ export class ConfigBuilder {
         fs.writeFileSync(filePath, JSON.stringify({
             modules: config.modules,
             loaders: config.loaders,
-            queue: config.queue,
+            queues: config.queues,
             plugins: plugins
         }, null, 4));
     }

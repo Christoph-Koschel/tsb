@@ -16,11 +16,13 @@ exports.Serialization = Serialization;
 class QueueBuilder {
     from;
     queue;
-    constructor(from) {
+    name;
+    constructor(from, name) {
         this.from = from;
+        this.name = name;
         this.queue = [];
     }
-    compileModule(module) {
+    compile_module(module) {
         this.queue.push({
             kind: QueueKind.COMPILE_MODULE,
             information: {
@@ -51,7 +53,7 @@ class QueueBuilder {
         return this;
     }
     done() {
-        this.from.setQueue(this.queue);
+        this.from.set_queue(this.name, this.queue);
         return this.from;
     }
 }
@@ -60,12 +62,12 @@ class ConfigBuilder {
     modules;
     loaders;
     plugins;
-    queue;
+    queues;
     constructor() {
         this.modules = new Map();
         this.loaders = new Map();
         this.plugins = new Map();
-        this.queue = false;
+        this.queues = new Map();
     }
     current = null;
     add_module(name, paths) {
@@ -146,11 +148,11 @@ class ConfigBuilder {
         }
         return this;
     }
-    createBuildQueue() {
-        return new QueueBuilder(this);
+    create_build_queue(name = "all") {
+        return new QueueBuilder(this, name);
     }
-    setQueue(queue) {
-        this.queue = queue;
+    set_queue(name, queue) {
+        this.queues.set(name, queue);
     }
     build() {
         let modules = {};
@@ -165,19 +167,24 @@ class ConfigBuilder {
         this.plugins.forEach((value, key) => {
             plugins[key] = value;
         });
-        if (!this.queue) {
-            this.queue = [];
+        if (this.queues.size == 0) {
+            const queue = [];
             this.modules.forEach((value, key) => {
-                this.queue.push({
+                queue.push({
                     kind: QueueKind.COMPILE_MODULE,
                     information: {
                         moduleName: key
                     }
                 });
+                this.queues.set("all", queue);
             });
         }
+        const queues = {};
+        this.queues.forEach((value, key) => {
+            queues[key] = value;
+        });
         return {
-            queue: this.queue,
+            queues: queues,
             modules: modules,
             loaders: loaders,
             plugins: plugins
@@ -207,7 +214,7 @@ class ConfigBuilder {
         fs.writeFileSync(filePath, JSON.stringify({
             modules: config.modules,
             loaders: config.loaders,
-            queue: config.queue,
+            queues: config.queues,
             plugins: plugins
         }, null, 4));
     }

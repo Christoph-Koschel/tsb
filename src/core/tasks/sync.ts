@@ -1,5 +1,5 @@
 import * as path from "path";
-import {CONFIG_FILE, CWD, ENGINE_DIR} from "../global";
+import {BUILD_OPTIONS, CONFIG_FILE, CWD, ENGINE_DIR} from "../global";
 import * as fs from "fs";
 import {Config, CopyData, Queue, QueueDataGroup, QueueEntry, QueueKind, RemoveData} from "../config";
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_error} from "../output";
@@ -20,7 +20,22 @@ export default function sync(): void {
         return;
     }
 
-    const queue: Queue<QueueDataGroup> = config.queue.filter(value => value.kind != QueueKind.COMPILE_MODULE);
+    if (!BUILD_OPTIONS.option) {
+        if (Object.keys(config).length < 1) {
+            console.log(colorize("ERROR: No option is declared", Color.Red));
+            process.exit(1);
+        }
+
+        BUILD_OPTIONS.option = Object.keys(config)[0];
+    }
+    let queue: Queue<QueueDataGroup> = config.queues[BUILD_OPTIONS.option];
+
+    if (!queue) {
+        console.log(colorize(`ERROR: The option '${BUILD_OPTIONS.option}' is not declared in your config file`, Color.Red));
+        process.exit(1);
+    }
+
+    queue = queue.filter(value => value.kind != QueueKind.COMPILE_MODULE);
 
     queue.unshift({
         kind: QueueKind.SYNC_PLUGIN,

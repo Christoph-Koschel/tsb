@@ -1,6 +1,7 @@
 import {Queue, QueueDataGroup} from "./config";
 import {Progress} from "clui";
 import * as readline from "readline";
+import {BUILD_OPTIONS} from "./global";
 
 const PROGRESS = "🪛";
 const OK = "✅";
@@ -55,9 +56,8 @@ export function init_queue_status(queue: Queue<QueueDataGroup>): void {
             logs: []
         }
     });
-
-    // TODO maybe print conf name
-    console.log("Tasks: ");
+    
+    console.log(`Build option: '${BUILD_OPTIONS.option}'`);
     print_queue(true);
 }
 

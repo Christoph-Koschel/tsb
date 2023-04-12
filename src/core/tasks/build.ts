@@ -1,7 +1,15 @@
 import {BUILD_OPTIONS, CONFIG_FILE, CWD} from "../global";
 import * as path from "path";
 import * as fs from "fs";
-import {CompileModuleData, Config, CopyData, QueueDataGroup, QueueEntry, QueueKind, RemoveData} from "../config";
+import {
+    CompileModuleData,
+    Config,
+    CopyData, Queue,
+    QueueDataGroup,
+    QueueEntry,
+    QueueKind,
+    RemoveData
+} from "../config";
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_title} from "../output";
 import {shift} from "../utils";
 import {compile_module_task, copy_task, remove_task} from "../task";
@@ -12,6 +20,8 @@ function prebuild(): Config {
     while (typeof (arg = shift()) == "string") {
         if (arg == "--write-ts") {
             BUILD_OPTIONS.produceTS = true;
+        } else {
+            BUILD_OPTIONS.option = arg;
         }
     }
 
@@ -26,14 +36,31 @@ function prebuild(): Config {
         console.log(colorize("ERROR: No config object is exported as default", Color.Red));
         process.exit(1);
     }
+
+    if (!BUILD_OPTIONS.option) {
+        if (Object.keys(config).length < 1) {
+            console.log(colorize("ERROR: No option is declared", Color.Red));
+            process.exit(1);
+        }
+
+        BUILD_OPTIONS.option = Object.keys(config)[0];
+    }
+
     return config;
 }
 
 export default function build(): void {
     const config: Config = prebuild();
-    init_queue_status(config.queue);
+    const queue: Queue<QueueDataGroup> = config.queues[<string>BUILD_OPTIONS.option];
 
-    config.queue.forEach((value: QueueEntry<QueueDataGroup>, index: number): void => {
+    if (!queue) {
+        console.log(colorize(`ERROR: The option '${BUILD_OPTIONS.option}' is not declared in your config file`, Color.Red));
+        process.exit(1);
+    }
+
+    init_queue_status(queue);
+
+    queue.forEach((value: QueueEntry<QueueDataGroup>, index: number): void => {
         set_active(index);
         if (value.kind == QueueKind.COMPILE_MODULE) {
             write_title(`Compile '${(<CompileModuleData>value.information).moduleName}'`);
@@ -46,7 +73,7 @@ export default function build(): void {
 
     let hasErrors: boolean = false;
 
-    config.queue.forEach((value: QueueEntry<QueueDataGroup>, index: number): void => {
+    queue.forEach((value: QueueEntry<QueueDataGroup>, index: number): void => {
         set_active(index);
         set_status("DOING");
         if (value.kind == QueueKind.COMPILE_MODULE) {
