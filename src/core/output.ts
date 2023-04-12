@@ -6,7 +6,7 @@ import {BUILD_OPTIONS} from "./global";
 const PROGRESS = "🪛";
 const OK = "✅";
 const FAILURE = "❌";
-const WARNINGS = "⚠";
+const WARNINGS = "❗";
 
 export enum Color {
     Black = 0,
@@ -56,7 +56,7 @@ export function init_queue_status(queue: Queue<QueueDataGroup>): void {
             logs: []
         }
     });
-    
+
     console.log(`Build option: '${BUILD_OPTIONS.option}'`);
     print_queue(true);
 }
@@ -134,18 +134,14 @@ function chop_line(line: string): string[] {
     return line.split(/\r?\n/);
 }
 
-function calculate_used_lines(): number {
-    let logs: number = 0;
-    queueStatus.forEach(value => value.logs.forEach(() => logs += 1))
-
-    return (queueStatus.length * 2) + queueStatus.length + (logs * 2) + 2;
-}
+let lines: number = 0;
 
 function print_queue(init: boolean = false): void {
     if (!init) {
         readline.cursorTo(process.stdout, 0);
-        readline.moveCursor(process.stdout, 0, -calculate_used_lines());
+        readline.moveCursor(process.stdout, 0, -lines);
     }
+    lines = 0;
 
     let done: number = 0;
     let failed: number = 0;
@@ -175,24 +171,36 @@ function print_queue(init: boolean = false): void {
         process.stdout.write(value.fullProgressBar.update(value.fullProgressValue));
         process.stdout.write(" ".repeat(value.fullProgressValue == 1 ? 1 : value.fullProgressValue >= 0.1 ? 2 : 3) + value.title);
         process.stdout.write("\n");
+        lines++;
         readline.clearLine(process.stdout, 0)
         process.stdout.write("   ");
         process.stdout.write(value.stepProgressBar.update(value.stepProgressValue));
         process.stdout.write(" ".repeat(value.stepProgressValue == 1 ? 1 : value.stepProgressValue >= 0.1 ? 2 : 3));
         process.stdout.write(value.statusMessage);
+        lines++;
+        process.stdout.write("\n");
 
         value.logs.forEach(value => {
+            readline.clearLine(process.stdout, 0)
             process.stdout.write("   ");
             process.stdout.write(value);
+            lines++;
             process.stdout.write("\n");
+            readline.clearLine(process.stdout, 0)
+            lines++;
             process.stdout.write("\n");
         });
 
-        process.stdout.write("\n\n");
+        lines++;
+        readline.clearLine(process.stdout, 0)
+        process.stdout.write("\n");
     });
 
+    lines++;
     readline.clearLine(process.stdout, 0);
-    process.stdout.write(`${colorize(done.toString(), Color.Green)} tasks finished, ${colorize(failed.toString(), Color.Red)} failed, ${colorize(warnings.toString(), Color.Yellow)} with warnings,\n`);
+    process.stdout.write(`${colorize(done.toString(), Color.Green)} tasks finished, ${colorize(failed.toString(), Color.Red)} failed, ${colorize(warnings.toString(), Color.Yellow)} with warnings${queueStatus.length - (done + failed) != 0 ? "," : ""}\n`);
+
+    lines++;
     readline.clearLine(process.stdout, 0);
     if (queueStatus.length - (done + failed) != 0) {
         process.stdout.write(`${colorize((queueStatus.length - (done + failed)).toString(), Color.Cyan)} ${queueStatus.length - (done + failed) == 1 ? "is" : "are"} waiting/proceeding\n`);
