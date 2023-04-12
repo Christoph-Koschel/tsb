@@ -2,7 +2,13 @@ const {ConfigBuilder, PLUGINS} = require("./assets/config");
 
 let builder = new ConfigBuilder();
 
-builder.add_module("tsb", ["./src/utils", "./src/plugin", "./src/core"])
+builder.add_module("tsb",
+    [
+        "./src/utils",
+        "./src/plugin",
+        "./src/core"
+    ]
+)
     .add_loader("./src/utils/utils.ts")
     .add_loader("./src/core/bin/tsb.ts")
     .use(PLUGINS.UTILS.SHEBANG)
