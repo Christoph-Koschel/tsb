@@ -11,14 +11,21 @@ if (__dirname.endsWith("bin")) {
 function usage(): void {
     console.log("Usage tsb <command> [<options>]");
     console.log();
-    console.log("build [<options>]");
-    console.log("--write-ts  Write the typescript file to the output (This file is not 100% syntax secure).");
+    console.log("build [<config>] [<options>]");
     console.log();
-    console.log("sync [<options>]");
+    console.log("config:")
+    console.log("  Your config name defined in your config file");
+    console.log("options:");
+    console.log("  --write-ts  Write the typescript file to the output (This file is not 100% syntax secure).");
     console.log();
-    console.log("init [<options>]");
+    console.log("sync [<config>]");
     console.log();
-    console.log("help [<options>]");
+    console.log("config:")
+    console.log("  Your config name defined in your config file");
+    console.log();
+    console.log("init");
+    console.log();
+    console.log("help");
 }
 
 // Remove node and file path
