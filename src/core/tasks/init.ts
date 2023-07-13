@@ -25,12 +25,6 @@ export default function init(): void {
             paths: {
                 "@tsb/engine": [
                     "./engine/engine.d.ts"
-                ],
-                "@tsb/tsx": [
-                    "./engine/tsx.d.ts"
-                ],
-                "@tsb/react": [
-                    "./engine/react.d.ts"
                 ]
             }
         },
