@@ -6,6 +6,12 @@ export type ModuleItem = {
     module: SourceFile;
 }
 
+export type CompilerResult = {
+    name: string;
+    sourceFile: SourceFile;
+    file_map: { [file: string]: string }
+}
+
 export enum SymbolType {
     FUNCTION,
     VARIABLE,

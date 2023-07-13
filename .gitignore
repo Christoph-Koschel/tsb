@@ -6,3 +6,4 @@ src/*.js.map
 assets/*.js
 assets/*.js.map
 !assets/tsb.config.js
+shadow

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as domain from "domain";
 
 export type Serializable =
 // primitive data types
@@ -19,6 +20,7 @@ export type Serializable =
 export type Config = {
     modules: { [Name in string]: string[] };
     loaders: { [Name in string]: string[] };
+    dependencies: { [Name in string]: string[] };
     plugins: { [Name in string]: PluginInformation[] };
     queues: { [Name in string]: Queue<QueueDataGroup> };
 }
@@ -133,12 +135,14 @@ export class QueueBuilder {
 export class ConfigBuilder {
     private modules: Map<string, string[]>;
     private loaders: Map<string, string[]>;
+    private dependencies: Map<string, string[]>;
     private plugins: Map<string, PluginInformation[]>;
     private queues: Map<string, Queue<QueueDataGroup>>
 
     constructor() {
         this.modules = new Map<string, string[]>();
         this.loaders = new Map<string, string[]>();
+        this.dependencies = new Map<string, string[]>();
         this.plugins = new Map<string, PluginInformation[]>();
         this.queues = new Map<string, Queue<QueueDataGroup>>();
     }
@@ -154,7 +158,7 @@ export class ConfigBuilder {
                 fs.readdirSync(root).forEach(item => {
                     const itemPath: string = path.join(root, item);
                     if (fs.statSync(itemPath).isFile() && (itemPath.endsWith(".tsx") || itemPath.endsWith(".ts"))) {
-                        convertedPaths.push(itemPath);
+                        convertedPaths.push(itemPath.replace(/\\/gi, "/"));
                     } else if (fs.statSync(itemPath).isDirectory()) {
                         loop(itemPath);
                     }
@@ -167,7 +171,7 @@ export class ConfigBuilder {
             }
 
             if (fs.statSync(value).isFile()) {
-                convertedPaths.push(value);
+                convertedPaths.push(value.replace(/\\/gi, "/"));
             } else if (fs.statSync(value).isDirectory()) {
                 loop(value);
             }
@@ -233,6 +237,21 @@ export class ConfigBuilder {
         return this;
     }
 
+    public dependence(name: string): this {
+        if (this.current == null) {
+            console.log("ERROR: No module selected at 'dependence'\nAt one with 'add_module' or select one with 'select_module'");
+            process.exit(1);
+        }
+
+        if (!this.dependencies.has(this.current)) {
+            this.dependencies.set(this.current, [name]);
+        } else {
+            (<string[]>this.dependencies.get(this.current)).push(name);
+        }
+
+        return this;
+    }
+
     public create_build_queue(name: string = "all"): QueueBuilder {
         return new QueueBuilder(this, name);
     }
@@ -252,6 +271,11 @@ export class ConfigBuilder {
 
         this.loaders.forEach((value, key) => {
             loaders[key] = value;
+        });
+
+        let dependencies: { [Name in string]: string[] } = {};
+        this.dependencies.forEach((value, key) => {
+            dependencies[key] = value;
         });
 
         let plugins: { [Name in string]: PluginInformation[] } = {};
@@ -285,6 +309,7 @@ export class ConfigBuilder {
             queues: queues,
             modules: modules,
             loaders: loaders,
+            dependencies: dependencies,
             plugins: plugins
         }
     }
@@ -316,6 +341,7 @@ export class ConfigBuilder {
         fs.writeFileSync(filePath, JSON.stringify({
             modules: config.modules,
             loaders: config.loaders,
+            dependencies: config.dependencies,
             queues: config.queues,
             plugins: plugins
         }, null, 4));
@@ -326,12 +352,18 @@ export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
-        TSX: "tsb.tsx"
+        TSX: "tsb.tsx",
+        NODE: {
+            LOADER: "tsb.node.loader"
+        }
     }
 } = {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
-        TSX: "tsb.tsx"
+        TSX: "tsb.tsx",
+        NODE: {
+            LOADER: "tsb.node.loader"
+        }
     }
 }

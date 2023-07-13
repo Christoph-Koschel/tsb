@@ -400,7 +400,7 @@ function tsx_translate_loop(child: JsxChild): string | null {
         return `JSX.createText("${text}")`;
     } else if (child.getKind() == SyntaxKind.JsxExpression) {
         child = child as JsxExpression;
-        let text = child.getText();
+        let text: string = child.getText();
         return text.substring(1, text.length - 1);
     }
 

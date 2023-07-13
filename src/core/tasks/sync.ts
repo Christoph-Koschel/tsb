@@ -21,14 +21,14 @@ export default function sync(): void {
     }
 
     if (!BUILD_OPTIONS.option) {
-        if (Object.keys(config).length < 1) {
+        if (Object.keys(config.queues).length < 1) {
             console.log(colorize("ERROR: No option is declared", Color.Red));
             process.exit(1);
         }
 
-        BUILD_OPTIONS.option = Object.keys(config)[0];
+        BUILD_OPTIONS.option = Object.keys(config.queues)[0];
     }
-    let queue: Queue<QueueDataGroup> = config.queues[BUILD_OPTIONS.option];
+    let queue: Queue<QueueDataGroup> = config.queues[<string>BUILD_OPTIONS.option];
 
     if (!queue) {
         console.log(colorize(`ERROR: The option '${BUILD_OPTIONS.option}' is not declared in your config file`, Color.Red));
@@ -54,10 +54,13 @@ export default function sync(): void {
                 outDir: path.join(CWD, "out"),
                 outName: "",
                 outPath: "",
-                engineDir: path.join(CWD, ENGINE_DIR)
+                engineDir: path.join(CWD, ENGINE_DIR),
+                module: ""
             }
 
             for (let module in config.modules) {
+                information.module = module;
+
                 for (let plugin of config.plugins[module]) {
                     if (seenPlugins.includes(plugin.name)) {
                         continue;

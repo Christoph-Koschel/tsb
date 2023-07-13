@@ -1,23 +1,43 @@
 import * as p from "path";
 import {Diagnostic, Node, Project, SourceFile, SyntaxKind} from "ts-morph";
 import {ImportReference, ModuleItem} from "./types";
-import {write_log} from "./output";
+import {set_status, write_error, write_log} from "./output";
+import {Config} from "./config";
+import {CWD} from "./global";
 
-const pairs: Map<string, string> = new Map<string, string>();
+let modules: { [module: string]: string[] }
 
-export function trans_to_id(path: string): string {
+export function init_translation(config: Config): void {
+    modules = config.modules;
+}
+
+export function translate_to_id(module: string, path: string, dependencies: string[]): string {
     if (p.extname(path) != "") {
         path = path.replace(/\.[^/.]+$/, "")
     }
 
-    path = path.replace(/\\/gi, "/");
+    const pathWithoutExt: string = path = path.replace(/\\/gi, "/");
+    path = path.replace(CWD.replace(/\\/gi, "/") + "/", "") + ".ts";
 
-    if (pairs.has(path)) {
-        return <string>pairs.get(path);
+    if (modules[module].includes(path)) {
+        return "\"" + module + "_" + p.basename(pathWithoutExt) + "_" + modules[module].indexOf(path) + "\"";
     }
 
-    pairs.set(path, "\"" + p.basename(path) + "_" + pairs.size + "\"");
-    return trans_to_id(path);
+    for (let dependency of dependencies) {
+        if (modules[dependency].includes(path)) {
+            return "\"" + dependency + "_" + p.basename(pathWithoutExt) + "_" + modules[dependency].indexOf(path) + "\"";
+        }
+    }
+
+    write_error(`ERROR: Could not map path '${path}'`);
+    set_status("FAIL");
+    return "\"" + module + "_undefined\"";
+}
+
+export function get_all_translations(module: string): { [file: string]: string } {
+    let x: { [file: string]: string } = {};
+    modules[module].forEach(value => x[value] = "\"" + module + "_" + p.basename(value) + "_" + modules[module].indexOf(value))
+    return x;
 }
 
 export function find_by_name(sourceFile: SourceFile, name: string) {

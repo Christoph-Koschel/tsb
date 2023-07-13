@@ -36,10 +36,18 @@ export function build_bundler(): ClassDeclarationStructure {
         name: "Bundler",
         ctors: [
             {
+                parameters: [
+                    {
+                        kind: StructureKind.Parameter,
+                        name: "name",
+                        type: "string"
+                    }
+                ],
                 kind: StructureKind.Constructor,
                 statements: writer => {
                     writer.writeLine("this.modules = new Map<string, BundlerStorage>();");
                     writer.writeLine("this.loaded = new Map<string, BundlerExports>();");
+                    writer.writeLine("this.name = name");
                 }
             }
         ],
@@ -54,6 +62,12 @@ export function build_bundler(): ClassDeclarationStructure {
                 kind: StructureKind.Property,
                 name: "loaded",
                 type: "Map<string, BundlerExports>",
+                scope: Scope.Private
+            },
+            {
+                kind: StructureKind.Property,
+                name: "name",
+                type: "string",
                 scope: Scope.Private
             }
         ],
@@ -122,8 +136,30 @@ export function build_bundler(): ClassDeclarationStructure {
                 returnType: "[boolean, BundlerExports]",
                 statements: writer => {
                     writer.writeLine("if (!this.modules.has(item)) {");
+                    writer.writeLine('let domain: string = item.split("_")[0]');
+                    writer.writeLine("if (typeof window == \"undefined\") {");
+                    writer.writeLine("if (typeof global[\"domain\"] == \"undefined\") {");
                     writer.writeLine("console.error(`BUNDLER: Cannot resolve '${item}'`);");
                     writer.writeLine("return [false, []];");
+                    writer.writeLine("}");
+                    writer.writeLine(`if (global["domain"][domain] == "undefined") {`);
+                    writer.writeLine("console.error(`BUNDLER: Cannot resolve '${item}'`);");
+                    writer.writeLine("return [false, []];");
+                    writer.writeLine("} else {");
+                    writer.writeLine("return global[\"domain\"][domain].loadItem(item);");
+                    writer.writeLine("}");
+                    writer.writeLine("} else {");
+                    writer.writeLine("if (typeof window[\"domain\"] == \"undefined\") {");
+                    writer.writeLine("console.error(`BUNDLER: Cannot resolve '${item}'`);");
+                    writer.writeLine("return [false, []];");
+                    writer.writeLine("}");
+                    writer.writeLine(`if (window["domain"][domain] == "undefined") {`);
+                    writer.writeLine("console.error(`BUNDLER: Cannot resolve '${item}'`);");
+                    writer.writeLine("return [false, []];");
+                    writer.writeLine("} else {");
+                    writer.writeLine("return window[\"domain\"][domain].loadItem(item);");
+                    writer.writeLine("}");
+                    writer.writeLine("}");
                     writer.writeLine("}");
                     writer.writeLine("if (this.loaded.has(item)) {");
                     writer.writeLine("return [true, this.loaded.get(item)];");

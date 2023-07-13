@@ -13,6 +13,7 @@ import {
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_title} from "../output";
 import {shift} from "../utils";
 import {compile_module_task, copy_task, remove_task} from "../task";
+import {ObjectLiteralElement} from "ts-morph";
 
 function prebuild(): Config {
     let arg: string | null = null;
@@ -38,12 +39,12 @@ function prebuild(): Config {
     }
 
     if (!BUILD_OPTIONS.option) {
-        if (Object.keys(config).length < 1) {
+        if (Object.keys(config.queues).length < 1) {
             console.log(colorize("ERROR: No option is declared", Color.Red));
             process.exit(1);
         }
 
-        BUILD_OPTIONS.option = Object.keys(config)[0];
+        BUILD_OPTIONS.option = Object.keys(config.queues)[0];
     }
 
     return config;

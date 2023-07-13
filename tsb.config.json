@@ -1,6 +1,6 @@
 {
     "modules": {
-        "tsb": [
+        "standalone": [
             "src/utils/tsx.ts",
             "src/utils/utils.ts",
             "src/plugin/plugin.ts",
@@ -18,16 +18,54 @@
             "src/core/transpiler.ts",
             "src/core/types.ts",
             "src/core/utils.ts"
+        ],
+        "tsb": [
+            "src/plugin/plugin.ts",
+            "src/core/bin/tsb.ts",
+            "src/core/config.ts",
+            "src/core/context.ts",
+            "src/core/engine.ts",
+            "src/core/global.ts",
+            "src/core/output.ts",
+            "src/core/structure.ts",
+            "src/core/task.ts",
+            "src/core/tasks/build.ts",
+            "src/core/tasks/init.ts",
+            "src/core/tasks/sync.ts",
+            "src/core/transpiler.ts",
+            "src/core/types.ts",
+            "src/core/utils.ts"
+        ],
+        "utils": [
+            "src/utils/tsx.ts",
+            "src/utils/utils.ts"
         ]
     },
     "loaders": {
-        "tsb": [
+        "standalone": [
             "./src/utils/utils.ts",
             "./src/core/bin/tsb.ts"
+        ],
+        "tsb": [
+            "./src/core/bin/tsb.ts"
+        ],
+        "utils": [
+            "./src/utils/utils.ts"
+        ]
+    },
+    "dependencies": {
+        "utils": [
+            "tsb"
         ]
     },
     "queues": {
         "core": [
+            {
+                "kind": 0,
+                "information": {
+                    "moduleName": "utils"
+                }
+            },
             {
                 "kind": 0,
                 "information": {
@@ -42,6 +80,12 @@
                     "from": "./assets/config.ts",
                     "to": "./src/core",
                     "overwrite": true
+                }
+            },
+            {
+                "kind": 0,
+                "information": {
+                    "moduleName": "utils"
                 }
             },
             {
@@ -71,7 +115,7 @@
                 "information": {
                     "from": "./node_modules",
                     "to": "./out",
-                    "overwrite": true
+                    "overwrite": false
                 }
             },
             {
@@ -116,6 +160,12 @@
             {
                 "kind": 0,
                 "information": {
+                    "moduleName": "utils"
+                }
+            },
+            {
+                "kind": 0,
+                "information": {
                     "moduleName": "tsb"
                 }
             },
@@ -164,14 +214,106 @@
                     "recursive": false
                 }
             }
+        ],
+        "standalone": [
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/config.ts",
+                    "to": "./src/core",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 0,
+                "information": {
+                    "moduleName": "standalone"
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./package.json",
+                    "to": "./out",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./package-lock.json",
+                    "to": "./out",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./node_modules",
+                    "to": "./out",
+                    "overwrite": false
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets",
+                    "to": "./out",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 2,
+                "information": {
+                    "target": "./out/assets/config.ts",
+                    "recursive": false
+                }
+            },
+            {
+                "kind": 2,
+                "information": {
+                    "target": "./out/assets/config.js.map",
+                    "recursive": false
+                }
+            },
+            {
+                "kind": 2,
+                "information": {
+                    "target": "./out/assets/config.d.ts.map",
+                    "recursive": false
+                }
+            }
         ]
     },
     "plugins": {
-        "tsb": [
+        "standalone": [
             {
                 "name": "tsb.shebang",
                 "parameters": []
             },
+            {
+                "name": "tsb.minifier",
+                "parameters": []
+            }
+        ],
+        "tsb": [
+            {
+                "name": "tsb.node.loader",
+                "parameters": [
+                    "tsb",
+                    "./utils.min.js"
+                ]
+            },
+            {
+                "name": "tsb.shebang",
+                "parameters": []
+            },
+            {
+                "name": "tsb.minifier",
+                "parameters": []
+            }
+        ],
+        "utils": [
             {
                 "name": "tsb.minifier",
                 "parameters": []

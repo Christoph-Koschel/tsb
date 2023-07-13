@@ -1,3 +1,4 @@
+#!/bin/bash
 #if [ -f ./out/tsb.js ]
 #then
 #  clear
@@ -7,12 +8,12 @@
 
 clear
 tsc
-node ./src/core/bin/tsb.js build all
+find ./src -maxdepth 4 -type f -name "*.d.ts" -delete
+node ./src/core/bin/tsb.js build standalone
+node ./out/standalone.js build fast
 node ./out/tsb.js build core
 find ./src -maxdepth 4 -type f -name "*.js" -delete
 find ./src -maxdepth 4 -type f -name "*.js.map" -delete
-find ./src -maxdepth 4 -type f -name "*.d.ts" -delete
-find ./src -maxdepth 4 -type f -name "*.d.ts.map" -delete
 cd out || exit 1
 npm install -g .
 cd .. || exit 1

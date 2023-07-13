@@ -1,5 +1,13 @@
 import {CompileModuleData, Config, CopyData, RemoveData} from "./config";
-import {set_full_value, set_status, set_step_value, write_error, write_status_message, write_warning} from "./output";
+import {
+    has_status,
+    set_full_value,
+    set_status,
+    set_step_value,
+    write_error, write_log,
+    write_status_message,
+    write_warning
+} from "./output";
 import * as fs from "fs";
 import * as path from "path";
 import {BUILD_OPTIONS, CWD, ENGINE_DIR} from "./global";
@@ -7,6 +15,8 @@ import {list_dirs, list_files} from "./utils";
 import {EmitOutput, OutputFile, SourceFile} from "ts-morph";
 import {compile_module} from "./transpiler";
 import {Plugin, PluginHandler, PluginResultInformation} from "../plugin/plugin";
+import {CompilerResult} from "./types";
+import {init_translation} from "./context";
 
 export function compile_module_task(config: Config, information: CompileModuleData): void {
     if (!!config.modules[information.moduleName]) {
@@ -14,6 +24,8 @@ export function compile_module_task(config: Config, information: CompileModuleDa
         const sources: string[] = config.modules[information.moduleName];
         const loaders: string[] = config.loaders[information.moduleName];
         const plugins: Plugin[] = [];
+
+        init_translation(config);
 
         for (let plugin of config.plugins[information.moduleName]) {
             const component: Plugin | null = PluginHandler.instantiate(plugin.name, plugin.parameters);
@@ -26,7 +38,22 @@ export function compile_module_task(config: Config, information: CompileModuleDa
             plugins.push(component);
         }
 
-        const result: SourceFile | null = compile_module(name, sources, loaders, plugins);
+        const dependencyList: string[] = config.dependencies[information.moduleName] || [];
+        const dependencies: string[] = [];
+        dependencyList.forEach((dependency) => {
+            if (!config.modules[dependency]) {
+                write_error(`ERROR: Cannot find dependency '${dependency}'`);
+                set_status("FAIL");
+            }
+
+            dependencies.push(dependency);
+        });
+
+        if (has_status("FAIL")) {
+            return;
+        }
+
+        const result: CompilerResult | null = compile_module(name, sources, loaders, plugins, dependencies);
         if (result == null) {
             return;
         }
@@ -34,25 +61,26 @@ export function compile_module_task(config: Config, information: CompileModuleDa
         set_full_value(0.84);
         if (BUILD_OPTIONS.produceTS) {
             write_status_message("Create Typescript file");
-            fs.writeFileSync(result.getFilePath(), result.print());
+            fs.writeFileSync(result.sourceFile.getFilePath(), result.sourceFile.print());
         } else {
             fs.unlinkSync(path.join(CWD, "out", name + ".ts"));
         }
 
         write_status_message("Write output");
         set_full_value(0.96);
-        let output: EmitOutput = result.getEmitOutput();
+        let output: EmitOutput = result.sourceFile.getEmitOutput();
 
-        let data: OutputFile = output.getOutputFiles().filter(value => value.getFilePath() == result.getFilePath().replace(path.extname(result.getFilePath()), ".js"))[0];
+        let data: OutputFile = output.getOutputFiles().filter(value => value.getFilePath() == result.sourceFile.getFilePath().replace(path.extname(result.sourceFile.getFilePath()), ".js"))[0];
         let transformedData: string = data.getText().replace(/^export.*;$/gim, () => {
             return "";
         });
 
         const resultInformation: PluginResultInformation = {
-            outDir: path.dirname(result.getFilePath()),
+            outDir: path.dirname(result.sourceFile.getFilePath()),
             outName: path.basename(data.getFilePath()),
             outPath: data.getFilePath(),
-            engineDir: path.join(CWD, ENGINE_DIR)
+            engineDir: path.join(CWD, ENGINE_DIR),
+            module: name
         }
 
         for (let i: number = 0; i < plugins.length; i++) {

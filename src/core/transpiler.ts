@@ -21,14 +21,23 @@ import {
     VariableStatement
 } from "ts-morph";
 import * as path from "path";
-import {check_diagnostics, replace_type_name, trans_to_id} from "./context";
+import {check_diagnostics, get_all_translations, replace_type_name, translate_to_id} from "./context";
 import * as fs from "fs";
-import {CWD} from "./global";
+import {CWD, ENGINE_DIR} from "./global";
 import {build_bundler, build_bundler_types} from "./engine";
 import {build_output} from "./structure";
-import {ExportReference, ImportKind, ImportReference, ImportReferenceItem, ModuleItem, SymbolType} from "./types";
-import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
-import {Plugin} from "../plugin/plugin";
+import {
+    CompilerResult,
+    ExportReference,
+    ImportKind,
+    ImportReference,
+    ImportReferenceItem,
+    ModuleItem,
+    SymbolType
+} from "./types";
+import {set_full_value, set_status, set_step_value, write_status_message, write_title} from "./output";
+import {Plugin, PluginResultInformation} from "../plugin/plugin";
+import {writer} from "repl";
 
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
 export const OPTIONS_SCRIPT_TARGET: "ES2022" = "ES2022";
@@ -271,7 +280,7 @@ export function remove_exports(module: ModuleItem) {
     module.module.removeDefaultExport();
 }
 
-export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[]): SourceFile | null {
+export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[], dependencies: string[]): CompilerResult | null {
     set_full_value(0.12);
     write_status_message("Build output");
     build_output();
@@ -302,17 +311,31 @@ export function compile_module(name: string, sources: string[], loaders: string[
     write_status_message("Compile engine");
     result.addTypeAliases(build_bundler_types());
     result.addClass(build_bundler());
-    result.addStatements("const bundler: Bundler = new Bundler();");
+
+    result.addStatements(writer => {
+        writer.writeLine(`const bundler: Bundler = new Bundler("${name}");`);
+        writer.writeLine("if (typeof window == \"undefined\") {");
+        writer.writeLine("    if (typeof global[\"domain\"] == \"undefined\") {");
+        writer.writeLine("        global[\"domain\"] = {};");
+        writer.writeLine("    }");
+        writer.writeLine(`    global["domain"]["${name}"] = bundler;`);
+        writer.writeLine("} else {");
+        writer.writeLine("    if (typeof window[\"domain\"] == \"undefined\") {");
+        writer.writeLine("        window[\"domain\"] = {};");
+        writer.writeLine("    }");
+        writer.writeLine(`    window["domain"]["${name}"] = bundler;`);
+        writer.writeLine("}");
+    });
 
     for (let i: number = 0; i < plugins.length; i++) {
-        plugins[i].generate().forEach(value => result.addClass(value));
+        result.addClasses(plugins[i].generate());
     }
 
     for (let i: number = 0; i < modules.length; i++) {
         set_step_value(i / modules.length);
         write_status_message(`Extract type data in ${modules[i].rawFilename}`);
         const imports: ImportReference[] = extract_imports(modules[i]);
-        const namespaceName: string = trans_to_id(modules[i].filename).slice(1, -1);
+        const namespaceName: string = translate_to_id(name, modules[i].filename, dependencies).slice(1, -1);
 
         imports.forEach(imp => {
             if (imp.from != "FILE") {
@@ -321,7 +344,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
 
             imp.items.forEach(item => {
                 if (is_meta_data(item.type)) {
-                    replace_type_name(modules[i], item.alias, trans_to_id(imp.path).slice(1, -1) + "." + item.name);
+                    replace_type_name(modules[i], item.alias, translate_to_id(name, imp.path, dependencies).slice(1, -1) + "." + item.name);
                 }
             });
         });
@@ -373,12 +396,12 @@ export function compile_module(name: string, sources: string[], loaders: string[
 
         result.addStatements(writer => {
             writer.writeLine("bundler.register(");
-            writer.writeLine(trans_to_id(modules[i].filename) + ",");
+            writer.writeLine(translate_to_id(name, modules[i].filename, dependencies) + ",");
             let ids: string[] = [];
 
             imports.forEach(value => {
-                if (value.from != "MODULE" && !ids.includes(trans_to_id(value.path))) {
-                    ids.push(trans_to_id(value.path));
+                if (value.from != "MODULE" && !ids.includes(translate_to_id(name, value.path, dependencies))) {
+                    ids.push(translate_to_id(name, value.path, dependencies));
                 }
             });
 
@@ -396,7 +419,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
                         if (value.from == "MODULE") {
                             writer.writeLine(` = require["${value.path}").default;`);
                         } else {
-                            writer.writeLine(` = imports[${trans_to_id(value.path)}].default;`);
+                            writer.writeLine(` = imports[${translate_to_id(name, value.path, dependencies)}].default;`);
                         }
                         break;
                     case ImportKind.NAMED:
@@ -431,7 +454,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
                         if (value.from == "MODULE") {
                             writer.writeLine(`require("${value.path}");`);
                         } else {
-                            writer.writeLine(`imports[${trans_to_id(value.path)}];`);
+                            writer.writeLine(`imports[${translate_to_id(name, value.path, dependencies)}];`);
                         }
 
                         for (let item of value.items) {
@@ -450,7 +473,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
                         if (value.from == "MODULE") {
                             writer.writeLine(`require("${value.path}");`);
                         } else {
-                            writer.writeLine(`imports[${trans_to_id(value.path)}];`);
+                            writer.writeLine(`imports[${translate_to_id(name, value.path, dependencies)}];`);
                         }
 
                         break;
@@ -469,7 +492,7 @@ export function compile_module(name: string, sources: string[], loaders: string[
 
             exports.forEach(value => {
                 if (!is_meta_data(value.type)) {
-                    writer.writeLine(`exports[${trans_to_id(modules[i].filename)}].${value.global} = ${value.local};`);
+                    writer.writeLine(`exports[${translate_to_id(name, modules[i].filename, dependencies)}].${value.global} = ${value.local};`);
                 }
             });
 
@@ -479,24 +502,47 @@ export function compile_module(name: string, sources: string[], loaders: string[
         });
     }
 
-    set_full_value(0.72);
+
     result.addStatements(writer => {
-        writer.writeLine("bundler.load(");
-        loaders.forEach((value: string, index: number): void => {
-            set_step_value(index / loaders.length);
-            write_status_message(`Add loader of item '${trans_to_id(path.join(CWD, value))}'`);
-            if (index != 0) {
-                writer.writeLine(", ");
+
+
+        plugins.forEach(plugin => {
+            const information: PluginResultInformation = {
+                outDir: path.dirname(result.getFilePath()),
+                outName: path.basename(result.getFilePath()),
+                outPath: result.getFilePath(),
+                engineDir: path.join(CWD, ENGINE_DIR),
+                module: name
             }
-            writer.write(trans_to_id(path.join(CWD, value)));
+
+            plugin.beforeLoad(writer, information);
         });
-        writer.writeLine("")
-        writer.writeLine(");")
     });
+
+    set_full_value(0.72);
+    if (loaders.length > 0) {
+        result.addStatements(writer => {
+            writer.writeLine("bundler.load(");
+            loaders.forEach((value: string, index: number): void => {
+                set_step_value(index / loaders.length);
+                write_status_message(`Add loader of item '${translate_to_id(name, path.join(CWD, value), dependencies)}'`);
+                if (index != 0) {
+                    writer.writeLine(", ");
+                }
+                writer.write(translate_to_id(name, path.join(CWD, value), dependencies));
+            });
+            writer.writeLine("")
+            writer.writeLine(");")
+        });
+    }
 
     modules.forEach(value => {
         project.removeSourceFile(value.module);
     });
 
-    return result;
+    return {
+        name: name,
+        sourceFile: result,
+        file_map: get_all_translations(name)
+    }
 }

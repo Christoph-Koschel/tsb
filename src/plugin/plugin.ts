@@ -1,12 +1,13 @@
 import {Serializable} from "../core/config";
 import {ModuleItem} from "../core/types";
-import {ClassDeclarationStructure, ModuleDeclarationStructure} from "ts-morph";
+import {ClassDeclarationStructure, CodeBlockWriter} from "ts-morph";
 
 export type PluginResultInformation = {
     outDir: string;
     outName: string;
     outPath: string;
     engineDir: string;
+    module: string;
 }
 
 export abstract class Plugin {
@@ -20,6 +21,10 @@ export abstract class Plugin {
 
     public generate(): ClassDeclarationStructure[] {
         return [];
+    }
+
+    public beforeLoad(writer: CodeBlockWriter, information: PluginResultInformation): void {
+        return;
     }
 
     public result(fileContent: string, information: PluginResultInformation): string | null {
