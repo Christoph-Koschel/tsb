@@ -1,4 +1,4 @@
-import {CompileModuleData, Config, CopyData, RemoveData} from "./config";
+import {BuildType, CompileModuleData, Config, CopyData, RemoveData} from "./config";
 import {
     has_status,
     set_full_value,
@@ -23,6 +23,7 @@ export function compile_module_task(config: Config, information: CompileModuleDa
         const name: string = information.moduleName;
         const sources: string[] = config.modules[information.moduleName];
         const loaders: string[] = config.loaders[information.moduleName];
+        const type: BuildType = config.moduleType[information.moduleName];
         const plugins: Plugin[] = [];
 
         init_translation(config);
@@ -53,7 +54,7 @@ export function compile_module_task(config: Config, information: CompileModuleDa
             return;
         }
 
-        const result: CompilerResult | null = compile_module(name, sources, loaders, plugins, dependencies);
+        const result: CompilerResult | null = compile_module(name, sources, loaders, plugins, dependencies, type);
         if (result == null) {
             return;
         }

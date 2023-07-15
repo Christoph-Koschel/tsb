@@ -1,7 +1,6 @@
 {
     "modules": {
         "standalone": [
-            "src/utils/tsx.ts",
             "src/utils/utils.ts",
             "src/plugin/plugin.ts",
             "src/core/bin/tsb.ts",
@@ -37,7 +36,6 @@
             "src/core/utils.ts"
         ],
         "utils": [
-            "src/utils/tsx.ts",
             "src/utils/utils.ts"
         ]
     },
@@ -52,6 +50,11 @@
         "utils": [
             "./src/utils/utils.ts"
         ]
+    },
+    "moduleType": {
+        "standalone": "module",
+        "tsb": "lib",
+        "utils": "lib"
     },
     "dependencies": {
         "utils": [

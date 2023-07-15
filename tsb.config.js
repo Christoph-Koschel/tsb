@@ -19,6 +19,7 @@ builder.add_module("tsb",
     ]
 )
     .add_loader("./src/core/bin/tsb.ts")
+    .type("lib")
     .use(PLUGINS.UTILS.NODE.LOADER, "tsb", "./utils.min.js")
     .use(PLUGINS.UTILS.SHEBANG)
     .use(PLUGINS.UTILS.MINIFIER);
@@ -27,6 +28,7 @@ builder.add_module("utils", [
     "./src/utils"
 ])
     .dependence("tsb")
+    .type("lib")
     .add_loader("./src/utils/utils.ts")
     .use(PLUGINS.UTILS.MINIFIER);
 

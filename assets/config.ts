@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as domain from "domain";
 
 export type Serializable =
 // primitive data types
@@ -21,6 +20,7 @@ export type Config = {
     modules: { [Name in string]: string[] };
     loaders: { [Name in string]: string[] };
     dependencies: { [Name in string]: string[] };
+    moduleType: { [Name in string]: BuildType };
     plugins: { [Name in string]: PluginInformation[] };
     queues: { [Name in string]: Queue<QueueDataGroup> };
 }
@@ -62,6 +62,8 @@ export type QueueEntry<T> = {
     kind: QueueKind;
     information: T;
 }
+
+export type BuildType = "lib" | "module";
 
 export abstract class Serialization {
 
@@ -136,6 +138,7 @@ export class ConfigBuilder {
     private modules: Map<string, string[]>;
     private loaders: Map<string, string[]>;
     private dependencies: Map<string, string[]>;
+    private moduleType: Map<string, BuildType>;
     private plugins: Map<string, PluginInformation[]>;
     private queues: Map<string, Queue<QueueDataGroup>>
 
@@ -143,6 +146,7 @@ export class ConfigBuilder {
         this.modules = new Map<string, string[]>();
         this.loaders = new Map<string, string[]>();
         this.dependencies = new Map<string, string[]>();
+        this.moduleType = new Map<string, BuildType>();
         this.plugins = new Map<string, PluginInformation[]>();
         this.queues = new Map<string, Queue<QueueDataGroup>>();
     }
@@ -178,6 +182,7 @@ export class ConfigBuilder {
         });
 
         this.modules.set(name, convertedPaths);
+        this.moduleType.set(name, "module");
         this.loaders.set(name, []);
         this.plugins.set(name, []);
         this.current = name;
@@ -252,6 +257,17 @@ export class ConfigBuilder {
         return this;
     }
 
+    public type(type: BuildType): this {
+        if (this.current == null) {
+            console.log("ERROR: No module selected at 'dependence'\nAt one with 'type' or select one with 'select_module'");
+            process.exit(1);
+        }
+
+        this.moduleType.set(this.current, type);
+
+        return this;
+    }
+
     public create_build_queue(name: string = "all"): QueueBuilder {
         return new QueueBuilder(this, name);
     }
@@ -262,13 +278,11 @@ export class ConfigBuilder {
 
     public build(): Config {
         let modules: { [Name in string]: string[] } = {};
-
         this.modules.forEach((value, key) => {
             modules[key] = value;
         });
 
         let loaders: { [Name in string]: string[] } = {};
-
         this.loaders.forEach((value, key) => {
             loaders[key] = value;
         });
@@ -279,10 +293,15 @@ export class ConfigBuilder {
         });
 
         let plugins: { [Name in string]: PluginInformation[] } = {};
-
         this.plugins.forEach((value, key) => {
             plugins[key] = value;
         });
+
+        let moduleType: { [Name in string]: BuildType } = {};
+        this.moduleType.forEach((value, key) => {
+            moduleType[key] = value;
+        });
+
 
         if (this.queues.size == 0) {
             const queue: Queue<QueueDataGroup> = []
@@ -309,6 +328,7 @@ export class ConfigBuilder {
             queues: queues,
             modules: modules,
             loaders: loaders,
+            moduleType: moduleType,
             dependencies: dependencies,
             plugins: plugins
         }
@@ -341,6 +361,7 @@ export class ConfigBuilder {
         fs.writeFileSync(filePath, JSON.stringify({
             modules: config.modules,
             loaders: config.loaders,
+            moduleType: config.moduleType,
             dependencies: config.dependencies,
             queues: config.queues,
             plugins: plugins
@@ -352,7 +373,6 @@ export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
-        TSX: "tsb.tsx",
         NODE: {
             LOADER: "tsb.node.loader"
         }
@@ -361,7 +381,6 @@ export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
-        TSX: "tsb.tsx",
         NODE: {
             LOADER: "tsb.node.loader"
         }

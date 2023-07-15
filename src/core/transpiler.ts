@@ -1,15 +1,15 @@
 import {
     ClassDeclaration,
-    CompilerOptions,
+    CompilerOptions, EmitOutput, EmitResult,
     EnumDeclaration,
     ExportedDeclarations,
     Expression,
     FunctionDeclaration,
     Identifier,
     ImportSpecifier,
-    InterfaceDeclaration,
+    InterfaceDeclaration, MemoryEmitResult, MemoryEmitResultFile,
     ModuleKind,
-    ModuleResolutionKind,
+    ModuleResolutionKind, OutputFile,
     Project,
     ScriptTarget,
     SourceFile,
@@ -35,9 +35,10 @@ import {
     ModuleItem,
     SymbolType
 } from "./types";
-import {set_full_value, set_status, set_step_value, write_status_message, write_title} from "./output";
+import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
 import {Plugin, PluginResultInformation} from "../plugin/plugin";
-import {writer} from "repl";
+import {BuildType} from "./config";
+import {text} from "stream/consumers";
 
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
 export const OPTIONS_SCRIPT_TARGET: "ES2022" = "ES2022";
@@ -280,11 +281,10 @@ export function remove_exports(module: ModuleItem) {
     module.module.removeDefaultExport();
 }
 
-export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[], dependencies: string[]): CompilerResult | null {
+export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[], dependencies: string[], type: BuildType): CompilerResult | null {
     set_full_value(0.12);
     write_status_message("Build output");
     build_output();
-
 
     set_full_value(0.24);
     write_status_message("Init new module");
@@ -504,8 +504,6 @@ export function compile_module(name: string, sources: string[], loaders: string[
 
 
     result.addStatements(writer => {
-
-
         plugins.forEach(plugin => {
             const information: PluginResultInformation = {
                 outDir: path.dirname(result.getFilePath()),
@@ -540,9 +538,49 @@ export function compile_module(name: string, sources: string[], loaders: string[
         project.removeSourceFile(value.module);
     });
 
+    if (type == "lib") {
+        compile_header(name, sources);
+    }
+
     return {
         name: name,
         sourceFile: result,
         file_map: get_all_translations(name)
     }
+}
+
+function compile_header(moduleName: string, sources: string[]): void {
+    const project: Project = cnstr_project();
+
+    sources.forEach((source: string): void => {
+        project.addSourceFileAtPath(source);
+    });
+
+    project.compilerOptions.set({
+        declaration: true,
+    });
+
+    const result: MemoryEmitResultFile[] = project.emitToMemory({emitOnlyDtsFiles: true}).getFiles();
+
+    const old_file_map = get_all_translations(moduleName);
+    const file_map: { [file: string]: string } = {};
+
+
+    result.forEach((file: MemoryEmitResultFile) => {
+        const source = file.filePath.replace(CWD.replace(/\\/gi, "/") + "/", "").replace(".d.ts", ".ts");
+
+        if (sources.includes(source)) {
+            let shorted: string = file.filePath.replace(CWD.replace(/\\/gi, "/") + "/", "");
+            let parts: string[] = shorted.split("/");
+            parts.shift();
+
+            const out: string = path.join(CWD, "out", "header", moduleName, ...parts);
+            fs.mkdirSync(path.dirname(out), {recursive: true});
+            fs.writeFileSync(out, file.text);
+
+            file_map[path.join(moduleName, ...parts).replace(".d.ts", ".ts").replace(/\\/gi, "/")] = old_file_map[source];
+        }
+    });
+
+    fs.writeFileSync(path.join(CWD, "out", "header", moduleName, moduleName + ".fm.json"), JSON.stringify(file_map));
 }

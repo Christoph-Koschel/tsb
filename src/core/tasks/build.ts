@@ -82,7 +82,6 @@ export default function build(): void {
             compile_module_task(config, information);
         } else if (value.kind == QueueKind.COPY) {
             const information: CopyData = value.information as CopyData;
-
             copy_task(information);
         } else if (value.kind == QueueKind.REMOVE) {
             const information: RemoveData = value.information as RemoveData;
