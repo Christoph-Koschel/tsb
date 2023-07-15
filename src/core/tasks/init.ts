@@ -25,6 +25,9 @@ export default function init(): void {
             paths: {
                 "@tsb/engine": [
                     "./engine/engine.d.ts"
+                ],
+                "@lib/*": [
+                    "./lib/*.d.ts"
                 ]
             }
         },
@@ -34,7 +37,7 @@ export default function init(): void {
         ]
     }, null, 4));
 
-    make_folder("src");
+    make_folder("lib");
     make_folder(ENGINE_DIR);
     fs.copyFileSync(path.join(__dirname, "assets", "config.d.ts"), path.join(CWD, ENGINE_DIR, "config.d.ts"));
     fs.copyFileSync(path.join(__dirname, "assets", "config.js"), path.join(CWD, ENGINE_DIR, "config.js"));
