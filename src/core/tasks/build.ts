@@ -4,7 +4,7 @@ import * as fs from "fs";
 import {
     CompileModuleData,
     Config,
-    CopyData, Queue,
+    CopyData, PackData, Queue,
     QueueDataGroup,
     QueueEntry,
     QueueKind,
@@ -12,7 +12,7 @@ import {
 } from "../config";
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_title} from "../output";
 import {shift} from "../utils";
-import {compile_module_task, copy_task, remove_task} from "../task";
+import {compile_module_task, copy_task, pack_module_task, remove_task} from "../task";
 import {ObjectLiteralElement} from "ts-morph";
 
 function prebuild(): Config {
@@ -69,6 +69,8 @@ export default function build(): void {
             write_title(`Copy '${(<CopyData>value.information).from}'`);
         } else if (value.kind == QueueKind.REMOVE) {
             write_title(`Remove '${(<RemoveData>value.information).target}'`);
+        } else if (value.kind == QueueKind.PACK) {
+            write_title(`Pack '${(<PackData>value.information).moduleName}'`);
         }
     });
 
@@ -86,6 +88,9 @@ export default function build(): void {
         } else if (value.kind == QueueKind.REMOVE) {
             const information: RemoveData = value.information as RemoveData;
             remove_task(information);
+        } else if (value.kind == QueueKind.PACK) {
+            const information: PackData = value.information as PackData;
+            pack_module_task(information);
         }
         if (!hasErrors) {
             hasErrors = has_status("FAIL");

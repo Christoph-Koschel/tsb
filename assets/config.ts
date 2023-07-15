@@ -34,10 +34,11 @@ export enum QueueKind {
     COMPILE_MODULE,
     COPY,
     REMOVE,
-    SYNC_PLUGIN
+    SYNC_PLUGIN,
+    PACK
 }
 
-export type QueueDataGroup = CopyData | RemoveData | CompileModuleData | SyncPluginData;
+export type QueueDataGroup = CopyData | RemoveData | CompileModuleData | SyncPluginData | PackData;
 
 export type CopyData = {
     from: string;
@@ -51,6 +52,10 @@ export type RemoveData = {
 }
 
 export type CompileModuleData = {
+    moduleName: string;
+}
+
+export type PackData = {
     moduleName: string;
 }
 
@@ -121,6 +126,17 @@ export class QueueBuilder {
                 from: from,
                 to: to,
                 overwrite: overwrite
+            }
+        });
+
+        return this;
+    }
+
+    public pack(module: string): this {
+        this.queue.push({
+            kind: QueueKind.PACK,
+            information: {
+                moduleName: module
             }
         });
 

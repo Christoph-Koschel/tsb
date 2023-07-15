@@ -1,11 +1,11 @@
-import {BuildType, CompileModuleData, Config, CopyData, RemoveData} from "./config";
+import {BuildType, CompileModuleData, Config, CopyData, PackData, RemoveData} from "./config";
 import {
     has_status,
     set_full_value,
     set_status,
     set_step_value,
     write_error, write_log,
-    write_status_message,
+    write_status_message, write_title,
     write_warning
 } from "./output";
 import * as fs from "fs";
@@ -17,6 +17,7 @@ import {compile_module} from "./transpiler";
 import {Plugin, PluginHandler, PluginResultInformation} from "../plugin/plugin";
 import {CompilerResult} from "./types";
 import {init_translation} from "./context";
+import * as AdmZip from "adm-zip";
 
 export function compile_module_task(config: Config, information: CompileModuleData): void {
     if (!!config.modules[information.moduleName]) {
@@ -101,6 +102,28 @@ export function compile_module_task(config: Config, information: CompileModuleDa
     set_status("FAIL");
 }
 
+export function pack_module_task(information: PackData): void {
+    const zip: AdmZip = new AdmZip();
+    write_status_message("Packing headers");
+    set_step_value(0);
+    set_full_value(0);
+    zip.addLocalFolder(path.join(CWD, "out", "header", information.moduleName), "headers", /.*\.d\.ts/g);
+    write_status_message("Packing file map");
+    set_step_value(25);
+    set_full_value(25);
+    zip.addLocalFile(path.join(CWD, "out", "header", information.moduleName, information.moduleName + ".fm.json"), "");
+    set_step_value(50);
+    set_full_value(50);
+    write_status_message("Packing module");
+    zip.addLocalFile(path.join(CWD, "out", information.moduleName + ".js"), "");
+    set_step_value(75);
+    set_full_value(75);
+    write_status_message("Writing output");
+    zip.writeZip(path.join(CWD, information.moduleName + ".lib.zip"));
+
+    set_status("OK");
+}
+
 export function copy_task(information: CopyData): void {
     if (!fs.existsSync(path.join(CWD, information.from))) {
         write_error("ERROR: Cannot find item '" + information.from + "'");
@@ -120,11 +143,9 @@ export function copy_task(information: CopyData): void {
         return;
     }
 
-
     if (!fs.existsSync(path.join(CWD, information.to, path.basename(information.from))) || !fs.statSync(path.join(CWD, information.to, path.basename(information.from))).isDirectory()) {
         fs.mkdirSync(path.join(CWD, information.to, path.basename(information.from)));
     }
-
 
     write_status_message("Collecting directories");
     let dirs: string[] = list_dirs(path.join(CWD, information.from));

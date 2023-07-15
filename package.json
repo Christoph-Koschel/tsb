@@ -2,16 +2,17 @@
     "name": "tsb",
     "version": "2.0.0",
     "description": "",
-    "scripts": {
-    },
+    "scripts": {},
     "author": "Christoph Koschel",
     "bin": {
         "tsb": "./tsb.min.js"
     },
     "dependencies": {
+        "@types/adm-zip": "^0.5.0",
         "@types/clui": "^0.3.1",
         "@types/node": "^18.15.5",
         "@types/uglify-js": "^3.17.1",
+        "adm-zip": "^0.5.10",
         "clui": "^0.3.6",
         "ts-morph": "^17.0.1",
         "typescript": "^5.0.2",
