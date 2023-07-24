@@ -45,13 +45,8 @@ The plugin code provided above doesn't do anything yet, so we'll need to make so
 
 At this point, you have several options. You can override multiple methods:
 
-```typescript
-public
-modify(module
-:
-ModuleItem
-):
-void
+```
+public modify(module: ModuleItem): void
 ```
 
 The `modify` method will be called after the interfaces and types have been separated from the files. You're free to
@@ -60,50 +55,28 @@ modify the AST according to your needs. However, it is no longer possible to add
 > The imports and exports are intentionally limited to the user to ensure that they can keep track of the actual files
 > and node modules being imported and exported, thus guaranteeing code safety.
 
-```typescript
-public
-result(fileContent
-:
-string, information
-:
-PluginResultInformation
-):
-string | null
+```
+public result(fileContent: string, information: PluginResultInformation): string | null
 ```
 
 The `result` method will be called after all modules have been generated. At this point, you can edit the complete
 produced code as needed. Just remember to return the modified code or null if no changes were made.
 
-```typescript
-public
-generate(declaration
-:
-ClassDeclarationStructure
-):
-boolean
+```
+public generate(declaration: ClassDeclarationStructure): boolean
 ```
 
 The `generate` method is used to implement any necessary resources in the output file. All resources are represented as
 a class to prevent function overwriting.
 
-```typescript
-public
-sync(information
-:
-PluginResultInformation
-):
-void
+```
+public sync(information: PluginResultInformation): void
 ```
 
 The `sync` method is used to complete a specific task when using the sync command
 
-```typescript
-public
-pack(information
-:
-PluginResultInformation
-):
-LibIncludeItem[] | false
+```
+public pack(information: PluginResultInformation): LibIncludeItem[] | false
 ```
 
 The `pack` method is utilized when a library is being prepared for packing. In cases where the plugin requires assets,
