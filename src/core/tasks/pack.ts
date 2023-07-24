@@ -78,5 +78,5 @@ export default function pack(): void {
 
     set_active(1);
     set_status("DOING");
-    pack_module_task(<PackData>queue[1].information);
+    pack_module_task(config, <PackData>queue[1].information);
 }

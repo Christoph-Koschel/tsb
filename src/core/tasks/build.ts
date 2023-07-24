@@ -90,7 +90,7 @@ export default function build(): void {
             remove_task(information);
         } else if (value.kind == QueueKind.PACK) {
             const information: PackData = value.information as PackData;
-            pack_module_task(information);
+            pack_module_task(config, information);
         }
         if (!hasErrors) {
             hasErrors = has_status("FAIL");

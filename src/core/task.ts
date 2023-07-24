@@ -14,8 +14,8 @@ import {BUILD_OPTIONS, CWD, ENGINE_DIR} from "./global";
 import {list_dirs, list_files} from "./utils";
 import {EmitOutput, OutputFile, SourceFile} from "ts-morph";
 import {compile_module} from "./transpiler";
-import {Plugin, PluginHandler, PluginResultInformation} from "../plugin/plugin";
-import {CompilerResult} from "./types";
+import {Plugin, PluginHandler, PluginResultInformation} from "./plugin";
+import {CompilerResult, LibConfig, LibIncludeItem, LibIncludeType} from "./types";
 import {init_translation} from "./context";
 import * as AdmZip from "adm-zip";
 
@@ -102,23 +102,111 @@ export function compile_module_task(config: Config, information: CompileModuleDa
     set_status("FAIL");
 }
 
-export function pack_module_task(information: PackData): void {
+export function pack_module_task(config: Config, information: PackData): void {
     const zip: AdmZip = new AdmZip();
     write_status_message("Packing headers");
+
     set_step_value(0);
     set_full_value(0);
-    zip.addLocalFolder(path.join(CWD, "out", "header", information.moduleName), "headers", /.*\.d\.ts/g);
+
+    let read: number = 0;
+    let total: number = 0;
+
+    function packHeaders(dir: string, vpath: string) {
+        let entries: string[] = fs.readdirSync(dir);
+
+        total += entries.length;
+
+        entries.forEach((entry) => {
+            read++;
+            if (entry.endsWith(".d.ts")) {
+                zip.addLocalFile(path.join(dir, entry), vpath);
+            }
+
+            if (fs.statSync(path.join(dir, entry)).isDirectory()) {
+                packHeaders(path.join(dir, entry), path.join(vpath, entry));
+            }
+        });
+    }
+
+    packHeaders(path.join(CWD, "out", "header", information.moduleName), "header");
+
     write_status_message("Packing file map");
-    set_step_value(25);
-    set_full_value(25);
+    set_step_value(15);
+    set_full_value(0);
+
     zip.addLocalFile(path.join(CWD, "out", "header", information.moduleName, information.moduleName + ".fm.json"), "");
-    set_step_value(50);
-    set_full_value(50);
+
+    set_step_value(30);
+    set_full_value(0);
     write_status_message("Packing module");
+
     zip.addLocalFile(path.join(CWD, "out", information.moduleName + ".js"), "");
+
+    set_step_value(45);
+    set_full_value(0);
+    write_status_message("Checking Plugins");
+
+    const libConfig: LibConfig = {
+        name: information.moduleName,
+        scripts: [],
+        assets: [],
+    }
+
+    const zipPackInf: PluginResultInformation = {
+        outDir: path.join(CWD, "out"),
+        outName: "",
+        outPath: "",
+        engineDir: path.join(CWD, ENGINE_DIR),
+        module: information.moduleName
+    }
+
+    for (let i = 0; i < config.plugins[information.moduleName].length; i++) {
+        let plugin = config.plugins[information.moduleName][i];
+        set_step_value(i / config.plugins[information.moduleName].length * 100);
+        const component: Plugin | null = PluginHandler.instantiate(plugin.name, plugin.parameters);
+
+        if (!component) {
+            write_error(`ERROR: Cannot find the plugin '${plugin.name}' found ${PluginHandler.names()}`);
+            set_status("FAIL");
+            return;
+        }
+
+        const copies: LibIncludeItem[] | false = component.pack(zipPackInf);
+
+        if (copies) {
+            copies.forEach((copy) => {
+                switch (copy.type) {
+                    case LibIncludeType.ASSET:
+                        if (fs.existsSync(copy.src) && fs.statSync(copy.src).isFile()) {
+                            zip.addLocalFile(path.join(CWD, copy.src), copy.vdest);
+                            libConfig.assets.push({
+                                src: path.join(copy.vdest, path.basename(copy.src)),
+                                dest: copy.dest
+                            });
+                        }
+                        break;
+                    case LibIncludeType.SCRIPT:
+                        if (fs.existsSync(copy.src) && fs.statSync(copy.src).isFile()) {
+                            zip.addLocalFile(path.join(CWD, copy.src), copy.vdest);
+                            libConfig.scripts.push(path.join(copy.vdest, path.basename(copy.src)));
+                        }
+                        break;
+                }
+            });
+        }
+    }
+
+    write_status_message("Packing lib information");
+    set_step_value(60);
+    set_full_value(0);
+
+    zip.addFile("lib.json", Buffer.from(JSON.stringify(libConfig)));
+
     set_step_value(75);
-    set_full_value(75);
+    set_full_value(0);
     write_status_message("Writing output");
+
     zip.writeZip(path.join(CWD, information.moduleName + ".lib.zip"));
 
     set_status("OK");

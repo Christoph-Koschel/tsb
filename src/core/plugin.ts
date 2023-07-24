@@ -1,5 +1,5 @@
-import {Serializable} from "../core/config";
-import {ModuleItem} from "../core/types";
+import {Serializable} from "./config";
+import {LibIncludeItem, ModuleItem} from "./types";
 import {ClassDeclarationStructure, CodeBlockWriter} from "ts-morph";
 
 export type PluginResultInformation = {
@@ -16,7 +16,6 @@ export abstract class Plugin {
     public abstract init(args: Serializable[]): void;
 
     public modify(module: ModuleItem): void {
-
     }
 
     public generate(): ClassDeclarationStructure[] {
@@ -33,6 +32,10 @@ export abstract class Plugin {
 
     public sync(information: PluginResultInformation): void {
         return;
+    }
+
+    public pack(information: PluginResultInformation): LibIncludeItem[] | false {
+        return false;
     }
 }
 

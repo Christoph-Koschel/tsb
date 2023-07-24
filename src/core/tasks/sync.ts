@@ -4,7 +4,7 @@ import * as fs from "fs";
 import {Config, CopyData, Queue, QueueDataGroup, QueueEntry, QueueKind, RemoveData} from "../config";
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_error} from "../output";
 import {copy_task, remove_task} from "../task";
-import {Plugin, PluginHandler, PluginResultInformation} from "../../plugin/plugin";
+import {Plugin, PluginHandler, PluginResultInformation} from "../plugin";
 
 export default function sync(): void {
     const configPath: string = path.join(CWD, CONFIG_FILE);
@@ -35,7 +35,7 @@ export default function sync(): void {
         process.exit(1);
     }
 
-    queue = queue.filter(value => value.kind != QueueKind.COMPILE_MODULE);
+    queue = queue.filter(value => value.kind != QueueKind.COMPILE_MODULE && value.kind != QueueKind.PACK);
 
     queue.unshift({
         kind: QueueKind.SYNC_PLUGIN,
