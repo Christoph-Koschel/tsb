@@ -18,3 +18,24 @@ You can use this plugin to add a shebang line at the beginning of your code
 
 > This plugin should be loaded first, because it would not add the shebang line to the minified version when its loaded
 > later.
+----------------- 
+
+## tsb.packer
+
+**Access name**: `PLUGINS.UTILS.PACKER`
+
+By using this plugin, you can add assets to the packing process
+
+`builder.use(PLUGINS.UTILS.PACKER, <module>, ...<files|directories>)`
+
+-----------------
+
+## tsb.node.loader
+
+**Access name**: `PLUGINS.UTILS.NODE.LOADER`
+
+By using this plugin, you can load other files from a module file
+
+`builder.use(PLUGINS.UTILS.PACKER, <module>, ...<js_files>)`
+
+-----------------
