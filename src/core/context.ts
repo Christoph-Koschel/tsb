@@ -4,6 +4,7 @@ import {ImportReference, ModuleItem} from "./types";
 import {set_status, write_error, write_log} from "./output";
 import {Config} from "./config";
 import {CWD} from "./global";
+import * as fs from "fs";
 
 let modules: { [module: string]: string[] }
 
@@ -12,8 +13,18 @@ export function init_translation(config: Config): void {
 }
 
 export function translate_to_id(module: string, path: string, dependencies: string[]): string {
+    if (path.startsWith("@lib/")) {
+        const parts: string[] = path.split("/");
+        parts.shift();
+        const lib: string = <string>parts.shift();
+        parts.unshift(lib);
+
+        const map = JSON.parse(fs.readFileSync(p.join(CWD, "lib", lib, lib + ".fm.json"), "utf-8"));
+        return map[parts.join("/")];
+    }
+
     if (p.extname(path) != "") {
-        path = path.replace(/\.[^/.]+$/, "")
+        path = path.replace(/\.[^/.]+$/, "");
     }
 
     const pathWithoutExt: string = path = path.replace(/\\/gi, "/");

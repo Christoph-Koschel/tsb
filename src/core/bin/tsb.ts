@@ -4,6 +4,7 @@ import build from "../tasks/build";
 import sync from "../tasks/sync";
 import init from "../tasks/init";
 import pack from "../tasks/pack";
+import use from "../tasks/use";
 
 if (__dirname.endsWith("bin")) {
     require("../../utils/utils");
@@ -35,10 +36,16 @@ function usage(): void {
     console.log("pack <module>");
     console.log();
     console.log("Packs a module to a zip library for easy transfer and usage");
-    console.log("Include a library with the 'use' command, load it in your config file and set it as a dependencies at one of the modules in another project");
     console.log();
     console.log("module:")
     console.log("  The module that should be packed");
+    console.log();
+    console.log("use <path>");
+    console.log();
+    console.log("Includes a library in the current project");
+    console.log();
+    console.log("path:")
+    console.log("  The path of the library");
     console.log();
     console.log("help");
 }
@@ -61,6 +68,8 @@ if (command == "build") {
     init();
 } else if (command == "pack") {
     pack();
+} else if (command == "use") {
+    use();
 } else if (command == "help") {
     usage();
 }

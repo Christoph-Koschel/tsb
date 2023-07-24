@@ -15,6 +15,7 @@
             "src/core/tasks/init.ts",
             "src/core/tasks/pack.ts",
             "src/core/tasks/sync.ts",
+            "src/core/tasks/use.ts",
             "src/core/transpiler.ts",
             "src/core/types.ts",
             "src/core/utils.ts"
@@ -33,6 +34,7 @@
             "src/core/tasks/init.ts",
             "src/core/tasks/pack.ts",
             "src/core/tasks/sync.ts",
+            "src/core/tasks/use.ts",
             "src/core/transpiler.ts",
             "src/core/types.ts",
             "src/core/utils.ts"
@@ -55,8 +57,8 @@
     },
     "moduleType": {
         "standalone": "module",
-        "tsb": "lib",
-        "utils": "lib"
+        "tsb": "module",
+        "utils": "module"
     },
     "dependencies": {
         "utils": [

@@ -4,7 +4,6 @@ let builder = new ConfigBuilder();
 
 builder.add_module("standalone", [
     "./src/utils",
-    "./src/plugin",
     "./src/core"
 ])
     .add_loader("./src/utils/utils.ts")
@@ -14,12 +13,10 @@ builder.add_module("standalone", [
 
 builder.add_module("tsb",
     [
-        "./src/plugin",
         "./src/core"
     ]
 )
     .add_loader("./src/core/bin/tsb.ts")
-    .type("lib")
     .use(PLUGINS.UTILS.NODE.LOADER, "tsb", "./utils.min.js")
     .use(PLUGINS.UTILS.SHEBANG)
     .use(PLUGINS.UTILS.MINIFIER);
@@ -28,7 +25,6 @@ builder.add_module("utils", [
     "./src/utils"
 ])
     .dependence("tsb")
-    .type("lib")
     .add_loader("./src/utils/utils.ts")
     .use(PLUGINS.UTILS.MINIFIER);
 

@@ -1,15 +1,15 @@
 import {
     ClassDeclaration,
-    CompilerOptions, EmitOutput, EmitResult,
+    CompilerOptions,
     EnumDeclaration,
     ExportedDeclarations,
     Expression,
     FunctionDeclaration,
     Identifier,
     ImportSpecifier,
-    InterfaceDeclaration, MemoryEmitResult, MemoryEmitResultFile,
+    InterfaceDeclaration, MemoryEmitResultFile,
     ModuleKind,
-    ModuleResolutionKind, OutputFile,
+    ModuleResolutionKind,
     Project,
     ScriptTarget,
     SourceFile,
@@ -36,7 +36,7 @@ import {
     SymbolType
 } from "./types";
 import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
-import {Plugin, PluginResultInformation} from "../plugin/plugin";
+import {Plugin, PluginResultInformation} from "./plugin";
 import {BuildType} from "./config";
 import {text} from "stream/consumers";
 
@@ -151,7 +151,7 @@ export function extract_imports(module: ModuleItem, generateNew: boolean = false
         let modified: boolean = false;
 
 
-        const importPath: string = node.getModuleSpecifierValue().startsWith(".") ?
+        let importPath: string = node.getModuleSpecifierValue().startsWith(".") ?
             path.join(path.dirname(module.filename), node.getModuleSpecifierValue()) :
             node.getModuleSpecifierValue();
         const from: "MODULE" | "FILE" = node.getModuleSpecifierValue().startsWith(".") ? "FILE" : "MODULE";

@@ -29,9 +29,10 @@ export declare enum QueueKind {
     COMPILE_MODULE = 0,
     COPY = 1,
     REMOVE = 2,
-    SYNC_PLUGIN = 3
+    SYNC_PLUGIN = 3,
+    PACK = 4
 }
-export declare type QueueDataGroup = CopyData | RemoveData | CompileModuleData | SyncPluginData;
+export declare type QueueDataGroup = CopyData | RemoveData | CompileModuleData | SyncPluginData | PackData;
 export declare type CopyData = {
     from: string;
     to: string;
@@ -42,6 +43,9 @@ export declare type RemoveData = {
     recursive: boolean;
 };
 export declare type CompileModuleData = {
+    moduleName: string;
+};
+export declare type PackData = {
     moduleName: string;
 };
 export declare type SyncPluginData = {};
@@ -67,6 +71,7 @@ export declare class QueueBuilder {
     compile_module(module: string): this;
     remove(path: string, recursive?: boolean): this;
     copy(from: string, to: string, overwrite?: boolean): this;
+    pack(module: string): this;
     done(): ConfigBuilder;
 }
 export declare class ConfigBuilder {
@@ -93,6 +98,7 @@ export declare const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier";
         SHEBANG: "tsb.shebang";
+        PACKER: "tsb.packer";
         NODE: {
             LOADER: "tsb.node.loader";
         };

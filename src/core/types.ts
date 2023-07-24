@@ -48,3 +48,29 @@ export type ExportReference = {
     global: string;
     type: SymbolType;
 }
+
+export type LibConfig = {
+    name: string;
+    scripts: string[];
+    assets: { src: string, dest: string }[];
+}
+
+export enum LibIncludeType {
+    SCRIPT,
+    ASSET
+}
+
+export type LibScriptIncludeItem = {
+    type: LibIncludeType.SCRIPT;
+    src: string;
+    vdest: string;
+}
+
+export type LibAssetIncludeItem = {
+    type: LibIncludeType.ASSET;
+    src: string;
+    vdest: string;
+    dest: string;
+}
+
+export type LibIncludeItem = LibScriptIncludeItem | LibAssetIncludeItem;
