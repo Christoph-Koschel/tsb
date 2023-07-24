@@ -13,7 +13,6 @@ import {
 import {Color, colorize, has_status, init_queue_status, set_active, set_status, write_title} from "../output";
 import {shift} from "../utils";
 import {compile_module_task, copy_task, pack_module_task, remove_task} from "../task";
-import {ObjectLiteralElement} from "ts-morph";
 
 function prebuild(): Config {
     let arg: string | null = null;

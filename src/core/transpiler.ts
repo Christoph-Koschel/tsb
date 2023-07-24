@@ -38,8 +38,6 @@ import {
 import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
 import {Plugin, PluginResultInformation} from "./plugin";
 import {BuildType} from "./config";
-import {text} from "stream/consumers";
-
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
 export const OPTIONS_SCRIPT_TARGET: "ES2022" = "ES2022";
 export const OPTIONS_JSX: "React" = "React";

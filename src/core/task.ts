@@ -4,15 +4,15 @@ import {
     set_full_value,
     set_status,
     set_step_value,
-    write_error, write_log,
-    write_status_message, write_title,
+    write_error,
+    write_status_message,
     write_warning
 } from "./output";
 import * as fs from "fs";
 import * as path from "path";
 import {BUILD_OPTIONS, CWD, ENGINE_DIR} from "./global";
 import {list_dirs, list_files} from "./utils";
-import {EmitOutput, OutputFile, SourceFile} from "ts-morph";
+import {EmitOutput, OutputFile} from "ts-morph";
 import {compile_module} from "./transpiler";
 import {Plugin, PluginHandler, PluginResultInformation} from "./plugin";
 import {CompilerResult, LibConfig, LibIncludeItem, LibIncludeType} from "./types";
