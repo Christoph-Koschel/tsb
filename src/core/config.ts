@@ -389,6 +389,7 @@ export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
+        PACKER: "tsb.packer",
         NODE: {
             LOADER: "tsb.node.loader"
         }
@@ -397,6 +398,7 @@ export const PLUGINS: {
     UTILS: {
         MINIFIER: "tsb.minifier",
         SHEBANG: "tsb.shebang",
+        PACKER: "tsb.packer",
         NODE: {
             LOADER: "tsb.node.loader"
         }
