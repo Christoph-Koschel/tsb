@@ -8,17 +8,19 @@ TSB is a powerful and flexible tool for building and running TypeScript
 applications, and it comes with a range of features that make it easy to manage your development workflow. Some of the
 key features of TSB include:
 
-- Custom tsx support: TSB supports custom tsx configurations, making it easy to create custom templates for your
-  application.
-
 - Runtime config management: TSB allows you to manage your application configuration at runtime. You can choose to load
   your modules once into cache or reload it every time it's imported.
 
 - Runtime loading of other compiled files: TSB allows you to load other compiled files at runtime, making it easy to
-  manage dependencies and keep your application up-to-date.
+  manage dependencies and keep your application up-to-date. [WIP]
 
 - Extensible through plugins: TSB is highly extensible and can be customized with plugins to fit your specific needs.
   You can add new features, modify existing ones, and integrate with other tools and frameworks.
+
+- Costume Preprocessor: Macro implementation and preprocessor directives are planned. [WIP]
+
+- TSB supports exporting symbols globally, making them accessible to other frameworks, scripts, and similar components,
+  even when isolated from the global scope. [WIP]
 
 Overall, TSB is a powerful and flexible tool for building and running TypeScript applications, and it can be a great
 choice for developers who want a complete solution for managing their application development workflow.
@@ -37,7 +39,7 @@ Requirements for the software and other tools to build, test and push
 
 ### Installing
 
-Just run the following command to install tsb on your local machine
+Just run the following command to install tsb globally on your local machine
 
 ```shell
 npm install -g https://github.com/Christoph-Koschel/tsb
@@ -45,7 +47,10 @@ npm install -g https://github.com/Christoph-Koschel/tsb
 
 > NPM Package will follow soon.
 
-Or follow the costume build [tutorial](/Build.md)
+## Wiki
+
+Feel free to explore the wiki, accessible either through the wiki folder or the wiki tab. Your contributions and
+insights are warmly encouraged and appreciated
 
 ## Authors
 
