@@ -2,13 +2,13 @@
     "modules": {
         "standalone": [
             "src/utils/utils.ts",
-            "src/plugin/plugin.ts",
             "src/core/bin/tsb.ts",
             "src/core/config.ts",
             "src/core/context.ts",
             "src/core/engine.ts",
             "src/core/global.ts",
             "src/core/output.ts",
+            "src/core/plugin.ts",
             "src/core/structure.ts",
             "src/core/task.ts",
             "src/core/tasks/build.ts",
@@ -21,13 +21,13 @@
             "src/core/utils.ts"
         ],
         "tsb": [
-            "src/plugin/plugin.ts",
             "src/core/bin/tsb.ts",
             "src/core/config.ts",
             "src/core/context.ts",
             "src/core/engine.ts",
             "src/core/global.ts",
             "src/core/output.ts",
+            "src/core/plugin.ts",
             "src/core/structure.ts",
             "src/core/task.ts",
             "src/core/tasks/build.ts",
@@ -57,7 +57,7 @@
     },
     "moduleType": {
         "standalone": "module",
-        "tsb": "module",
+        "tsb": "lib",
         "utils": "module"
     },
     "dependencies": {
@@ -77,6 +77,14 @@
                 "kind": 0,
                 "information": {
                     "moduleName": "tsb"
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./out/utils.min.js",
+                    "to": "./out/plugins",
+                    "overwrite": true
                 }
             }
         ],
@@ -128,30 +136,57 @@
             {
                 "kind": 1,
                 "information": {
-                    "from": "./assets",
-                    "to": "./out",
+                    "from": "./assets/config.js",
+                    "to": "./out/assets",
                     "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.ts",
-                    "recursive": false
+                    "from": "./assets/config.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.js.map",
-                    "recursive": false
+                    "from": "./assets/engine.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.d.ts.map",
-                    "recursive": false
+                    "from": "./assets/tsb.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/plugin.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/tsb.lib.zip",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./out/utils.min.js",
+                    "to": "./out/plugins",
+                    "overwrite": true
                 }
             }
         ],
@@ -195,30 +230,57 @@
             {
                 "kind": 1,
                 "information": {
-                    "from": "./assets",
-                    "to": "./out",
+                    "from": "./assets/config.js",
+                    "to": "./out/assets",
                     "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.ts",
-                    "recursive": false
+                    "from": "./assets/config.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.js.map",
-                    "recursive": false
+                    "from": "./assets/engine.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.d.ts.map",
-                    "recursive": false
+                    "from": "./assets/tsb.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/plugin.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/tsb.lib.zip",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./out/utils.min.js",
+                    "to": "./out/plugins",
+                    "overwrite": true
                 }
             }
         ],
@@ -264,30 +326,94 @@
             {
                 "kind": 1,
                 "information": {
-                    "from": "./assets",
-                    "to": "./out",
+                    "from": "./assets/config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/config.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/engine.d.ts",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/tsb.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/plugin.config.js",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./assets/tsb.lib.zip",
+                    "to": "./out/assets",
+                    "overwrite": true
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./out/utils.min.js",
+                    "to": "./out/plugins",
+                    "overwrite": true
+                }
+            }
+        ],
+        "plugin": [
+            {
+                "kind": 0,
+                "information": {
+                    "moduleName": "tsb"
+                }
+            },
+            {
+                "kind": 4,
+                "information": {
+                    "moduleName": "tsb"
+                }
+            },
+            {
+                "kind": 1,
+                "information": {
+                    "from": "./tsb.lib.zip",
+                    "to": "./assets/",
                     "overwrite": true
                 }
             },
             {
                 "kind": 2,
                 "information": {
-                    "target": "./out/assets/config.ts",
+                    "target": "./tsb.lib.zip",
                     "recursive": false
                 }
             },
             {
-                "kind": 2,
+                "kind": 1,
                 "information": {
-                    "target": "./out/assets/config.js.map",
-                    "recursive": false
-                }
-            },
-            {
-                "kind": 2,
-                "information": {
-                    "target": "./out/assets/config.d.ts.map",
-                    "recursive": false
+                    "from": "./assets/tsb.lib.zip",
+                    "to": "./out/assets",
+                    "overwrite": true
                 }
             }
         ]
@@ -304,13 +430,6 @@
             }
         ],
         "tsb": [
-            {
-                "name": "tsb.node.loader",
-                "parameters": [
-                    "tsb",
-                    "./utils.min.js"
-                ]
-            },
             {
                 "name": "tsb.shebang",
                 "parameters": []
