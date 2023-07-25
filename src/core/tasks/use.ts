@@ -93,7 +93,7 @@ export function extract_file(zip: AdmZip): void {
 
         fs.copyFileSync(path.join(CWD, "cash", lib.name + ".fm.json"), path.join(CWD, "lib", lib.name, lib.name + ".fm.json"));
 
-        copy_folder(path.join(CWD, "cash", "header"), path.join(CWD, "lib", lib.name, "header"));
+        copy_folder(path.join(CWD, "cash", "header"), path.join(CWD, "lib", lib.name));
     } catch {
         console.log("Library is corrupted");
     }
