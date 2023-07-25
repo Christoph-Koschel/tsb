@@ -55,6 +55,7 @@ builder.create_build_queue("all")
     .copy("./assets/engine.d.ts", "./out/assets", true)
     .copy("./assets/tsb.config.js", "./out/assets", true)
     .copy("./assets/plugin.config.js", "./out/assets", true)
+    .copy("./assets/tsb.lib.zip", "./out/assets", true)
     // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
     .done();
@@ -71,6 +72,7 @@ builder.create_build_queue("fast")
     .copy("./assets/engine.d.ts", "./out/assets", true)
     .copy("./assets/tsb.config.js", "./out/assets", true)
     .copy("./assets/plugin.config.js", "./out/assets", true)
+    .copy("./assets/tsb.lib.zip", "./out/assets", true)
     // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
     .done();
@@ -87,6 +89,7 @@ builder.create_build_queue("standalone")
     .copy("./assets/engine.d.ts", "./out/assets", true)
     .copy("./assets/tsb.config.js", "./out/assets", true)
     .copy("./assets/plugin.config.js", "./out/assets", true)
+    .copy("./assets/tsb.lib.zip", "./out/assets", true)
     // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
     .done();
@@ -94,6 +97,11 @@ builder.create_build_queue("standalone")
 builder.create_build_queue("plugin")
     .compile_module("tsb")
     .pack("tsb")
+    .copy("./tsb.lib.zip", "./assets/", true)
+    .remove("./tsb.lib.zip")
+    // ---------- ASSETS ----------
+    .copy("./assets/tsb.lib.zip", "./out/assets", true)
+    // ----------------------------
     .done();
 
 builder.write("./tsb.config.json");
