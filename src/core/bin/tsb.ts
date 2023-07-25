@@ -5,9 +5,17 @@ import sync from "../tasks/sync";
 import init from "../tasks/init";
 import pack from "../tasks/pack";
 import use from "../tasks/use";
+import * as path from "path";
+import * as fs from "fs";
 
 if (__dirname.endsWith("bin")) {
     require("../../utils/utils");
+} else {
+    fs.readdirSync(path.join(__dirname, "plugins")).forEach((item) => {
+        if (item.endsWith(".js")) {
+            require(path.join(__dirname, "plugins", item));
+        }
+    });
 }
 
 function usage(): void {

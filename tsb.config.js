@@ -16,8 +16,8 @@ builder.add_module("tsb",
         "./src/core"
     ]
 )
+    .type("lib")
     .add_loader("./src/core/bin/tsb.ts")
-    .use(PLUGINS.UTILS.NODE.LOADER, "tsb", "./utils.min.js")
     .use(PLUGINS.UTILS.SHEBANG)
     .use(PLUGINS.UTILS.MINIFIER);
 
@@ -33,6 +33,7 @@ builder.add_module("utils", [
 builder.create_build_queue("core")
     .compile_module("utils")
     .compile_module("tsb")
+    .copy("./out/utils.min.js", "./out/plugins", true)
     .done();
 
 builder.create_build_queue("all")
@@ -43,6 +44,7 @@ builder.create_build_queue("all")
     .copy("./package-lock.json", "./out", true)
     .copy("./node_modules", "./out", false)
     .copy("./assets", "./out", true)
+    .copy("./out/utils.min.js", "./out/plugins", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
     .done();
@@ -54,6 +56,7 @@ builder.create_build_queue("fast")
     .copy("./package.json", "./out", true)
     .copy("./package-lock.json", "./out", true)
     .copy("./assets", "./out", true)
+    .copy("./out/utils.min.js", "./out/plugins", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
     .done();
@@ -65,8 +68,14 @@ builder.create_build_queue("standalone")
     .copy("./package-lock.json", "./out", true)
     .copy("./node_modules", "./out", false)
     .copy("./assets", "./out", true)
+    .copy("./out/utils.min.js", "./out/plugins", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
+    .done();
+
+builder.create_build_queue("plugin")
+    .compile_module("tsb")
+    .pack("tsb")
     .done();
 
 builder.write("./tsb.config.json");
