@@ -41,6 +41,9 @@ function usage(): void {
     console.log();
     console.log("Inits a new project");
     console.log();
+    console.log("options:");
+    console.log("  (--plugin | -p) Inits a project for plugin development");
+    console.log();
     console.log("pack <module>");
     console.log();
     console.log("Packs a module to a zip library for easy transfer and usage");

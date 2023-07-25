@@ -1,4 +1,5 @@
-const {ConfigBuilder, PLUGINS} = require("./assets/config");
+const {ConfigBuilder} = require("./assets/config");
+const {PLUGINS} = require("./assets/plugins");
 
 let builder = new ConfigBuilder();
 
@@ -8,8 +9,8 @@ builder.add_module("standalone", [
 ])
     .add_loader("./src/utils/utils.ts")
     .add_loader("./src/core/bin/tsb.ts")
-    .use(PLUGINS.UTILS.SHEBANG)
-    .use(PLUGINS.UTILS.MINIFIER);
+    .use(PLUGINS.TSB.SHEBANG)
+    .use(PLUGINS.TSB.MINIFIER);
 
 builder.add_module("tsb",
     [
@@ -17,8 +18,8 @@ builder.add_module("tsb",
     ]
 )
     .add_loader("./src/core/bin/tsb.ts")
-    .use(PLUGINS.UTILS.SHEBANG)
-    .use(PLUGINS.UTILS.MINIFIER);
+    .use(PLUGINS.TSB.SHEBANG)
+    .use(PLUGINS.TSB.MINIFIER);
 
 // Set lib type dynamically to increase build efficiency
 if (process.argv.length >= 4 && process.argv[3] === "plugin") {
@@ -31,7 +32,7 @@ builder.add_module("utils", [
 ])
     .dependence("tsb")
     .add_loader("./src/utils/utils.ts")
-    .use(PLUGINS.UTILS.MINIFIER);
+    .use(PLUGINS.TSB.MINIFIER);
 
 // ----------------------------------
 // DON'T MODIFY THIS SECTION BELOW
@@ -48,10 +49,14 @@ builder.create_build_queue("all")
     .copy("./package.json", "./out", true)
     .copy("./package-lock.json", "./out", true)
     .copy("./node_modules", "./out", false)
-    .copy("./assets", "./out", true)
+    // ---------- ASSETS ----------
+    .copy("./assets/config.js", "./out/assets", true)
+    .copy("./assets/config.d.ts", "./out/assets", true)
+    .copy("./assets/engine.d.ts", "./out/assets", true)
+    .copy("./assets/tsb.config.js", "./out/assets", true)
+    .copy("./assets/plugin.config.js", "./out/assets", true)
+    // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
-    .remove("./out/assets/config.ts")
-    .remove("./out/assets/config.js.map")
     .done();
 
 builder.create_build_queue("fast")
@@ -60,10 +65,14 @@ builder.create_build_queue("fast")
     .compile_module("tsb")
     .copy("./package.json", "./out", true)
     .copy("./package-lock.json", "./out", true)
-    .copy("./assets", "./out", true)
+    // ---------- ASSETS ----------
+    .copy("./assets/config.js", "./out/assets", true)
+    .copy("./assets/config.d.ts", "./out/assets", true)
+    .copy("./assets/engine.d.ts", "./out/assets", true)
+    .copy("./assets/tsb.config.js", "./out/assets", true)
+    .copy("./assets/plugin.config.js", "./out/assets", true)
+    // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
-    .remove("./out/assets/config.ts")
-    .remove("./out/assets/config.js.map")
     .done();
 
 builder.create_build_queue("standalone")
@@ -72,10 +81,14 @@ builder.create_build_queue("standalone")
     .copy("./package.json", "./out", true)
     .copy("./package-lock.json", "./out", true)
     .copy("./node_modules", "./out", false)
-    .copy("./assets", "./out", true)
+    // ---------- ASSETS ----------
+    .copy("./assets/config.js", "./out/assets", true)
+    .copy("./assets/config.d.ts", "./out/assets", true)
+    .copy("./assets/engine.d.ts", "./out/assets", true)
+    .copy("./assets/tsb.config.js", "./out/assets", true)
+    .copy("./assets/plugin.config.js", "./out/assets", true)
+    // ----------------------------
     .copy("./out/utils.min.js", "./out/plugins", true)
-    .remove("./out/assets/config.ts")
-    .remove("./out/assets/config.js.map")
     .done();
 
 builder.create_build_queue("plugin")

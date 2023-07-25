@@ -56,6 +56,8 @@ function generate_plugin_file(plugins: string[]): { ts: string, js: string } {
 }
 
 export default function init(): void {
+    const pluginProject: boolean = process.argv.includes("--plugin") || process.argv.includes("-p");
+
     fs.writeFileSync(path.join(CWD, "tsconfig.json"), JSON.stringify({
         compilerOptions: {
             module: OPTIONS_MODULE_KIND,
@@ -89,7 +91,13 @@ export default function init(): void {
     fs.copyFileSync(path.join(__dirname, "assets", "config.js"), path.join(CWD, ENGINE_DIR, "config.js"));
     fs.copyFileSync(path.join(__dirname, "assets", "engine.d.ts"), path.join(CWD, ENGINE_DIR, "engine.d.ts"));
     fs.copyFileSync(path.join(__dirname, "assets", "engine.d.ts"), path.join(CWD, ENGINE_DIR, "engine.d.ts"));
-    fs.copyFileSync(path.join(__dirname, "assets", "tsb.config.js"), path.join(CWD, "tsb.config.js"));
+
+    if (pluginProject) {
+        fs.writeFileSync(path.join(CWD, "tsb.config.js"), fs.readFileSync(path.join(__dirname, "assets", "plugin.config.js"), "utf8").replace(/<@OUTPUT@>/gi, path.join(__dirname, "plugins").replace(/\\/gi, "/")));
+    } else {
+        fs.copyFileSync(path.join(__dirname, "assets", "tsb.config.js"), path.join(CWD, "tsb.config.js"));
+    }
+
 
     const plugins: { ts: string; js: string } = generate_plugin_file(PluginHandler.names().split(", "));
 
