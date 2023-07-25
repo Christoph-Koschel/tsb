@@ -63,6 +63,6 @@ export class PluginHandler {
             str.push(value.name);
         });
 
-        return str.join(", ") + this.plugins.size;
+        return str.join(", ");
     }
 }

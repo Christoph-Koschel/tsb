@@ -384,23 +384,3 @@ export class ConfigBuilder {
         }, null, 4));
     }
 }
-
-export const PLUGINS: {
-    UTILS: {
-        MINIFIER: "tsb.minifier",
-        SHEBANG: "tsb.shebang",
-        PACKER: "tsb.packer",
-        NODE: {
-            LOADER: "tsb.node.loader"
-        }
-    }
-} = {
-    UTILS: {
-        MINIFIER: "tsb.minifier",
-        SHEBANG: "tsb.shebang",
-        PACKER: "tsb.packer",
-        NODE: {
-            LOADER: "tsb.node.loader"
-        }
-    }
-}
