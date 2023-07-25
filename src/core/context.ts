@@ -20,7 +20,7 @@ export function translate_to_id(module: string, path: string, dependencies: stri
         parts.unshift(lib);
 
         const map = JSON.parse(fs.readFileSync(p.join(CWD, "lib", lib, lib + ".fm.json"), "utf-8"));
-        return map[parts.join("/")];
+        return "\"" + map[parts.join("/") + ".ts"] + "\"";
     }
 
     if (p.extname(path) != "") {
