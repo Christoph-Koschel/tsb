@@ -16,10 +16,15 @@ builder.add_module("tsb",
         "./src/core"
     ]
 )
-    .type("lib")
     .add_loader("./src/core/bin/tsb.ts")
     .use(PLUGINS.UTILS.SHEBANG)
     .use(PLUGINS.UTILS.MINIFIER);
+
+// Set lib type dynamically to increase build efficiency
+if (process.argv.length >= 4 && process.argv[3] === "plugin") {
+    builder.type("lib");
+}
+
 
 builder.add_module("utils", [
     "./src/utils"
