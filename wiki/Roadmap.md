@@ -15,7 +15,7 @@
 - [x] Library packing
 - [x] Ability to add Libraries to a project
 - [ ] Improved plugin integration
-- [ ] Improved plugin development
+- [x] Improved plugin development
 - [ ] Macro system
 - [ ] Native loader (TSB-Engine v1.0)
 - [ ] NPM integration
