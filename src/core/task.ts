@@ -118,6 +118,7 @@ export function pack_module_task(config: Config, information: PackData): void {
         total += entries.length;
 
         entries.forEach((entry) => {
+            set_step_value(read / total * 100);
             read++;
             if (entry.endsWith(".d.ts")) {
                 zip.addLocalFile(path.join(dir, entry), vpath);

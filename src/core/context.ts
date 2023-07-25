@@ -47,7 +47,7 @@ export function translate_to_id(module: string, path: string, dependencies: stri
 
 export function get_all_translations(module: string): { [file: string]: string } {
     let x: { [file: string]: string } = {};
-    modules[module].forEach(value => x[value] = module + "_" + p.basename(value) + "_" + modules[module].indexOf(value))
+    modules[module].forEach(value => x[value] = module + "_" + p.basename(value).replace(p.extname(value), "") + "_" + modules[module].indexOf(value))
     return x;
 }
 
