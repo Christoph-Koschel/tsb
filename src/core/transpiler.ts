@@ -38,6 +38,7 @@ import {
 import {set_full_value, set_status, set_step_value, write_status_message} from "./output";
 import {Plugin, PluginResultInformation} from "./plugin";
 import {BuildType} from "./config";
+
 export const OPTIONS_MODULE_KIND: "ES2022" = "ES2022";
 export const OPTIONS_SCRIPT_TARGET: "ES2022" = "ES2022";
 export const OPTIONS_JSX: "React" = "React";
@@ -47,8 +48,16 @@ export const OPTIONS: CompilerOptions = {
     moduleResolution: ModuleResolutionKind.NodeJs,
     removeComments: true,
     target: ScriptTarget[OPTIONS_SCRIPT_TARGET],
-    jsx: 2,
-    strict: false
+    strict: false,
+    allowJs: false,
+    paths: {
+        "@tsb/engine": [
+            "./engine/engine.d.ts"
+        ],
+        "@lib/*": [
+            "./lib/*.d.ts"
+        ]
+    }
 }
 
 function convert_type(kind: ts.ScriptElementKind | SyntaxKind): SymbolType {
@@ -152,7 +161,7 @@ export function extract_imports(module: ModuleItem, generateNew: boolean = false
         let importPath: string = node.getModuleSpecifierValue().startsWith(".") ?
             path.join(path.dirname(module.filename), node.getModuleSpecifierValue()) :
             node.getModuleSpecifierValue();
-        const from: "MODULE" | "FILE" = node.getModuleSpecifierValue().startsWith(".") ? "FILE" : "MODULE";
+        const from: "MODULE" | "FILE" = node.getModuleSpecifierValue().startsWith(".") || node.getModuleSpecifierValue().startsWith("@lib/") ? "FILE" : "MODULE";
 
         if (importPath.startsWith("@tsb/")) {
             return;
@@ -279,6 +288,21 @@ export function remove_exports(module: ModuleItem) {
     module.module.removeDefaultExport();
 }
 
+function add_lib_files(project: Project): void {
+    function loop(dir: string) {
+        fs.readdirSync(dir).forEach((entry: string) => {
+            const entryPath: string = path.join(dir, entry);
+            if (fs.statSync(entryPath).isDirectory()) {
+                loop(entryPath);
+            } else if (fs.statSync(entryPath).isFile() && entry.endsWith(".d.ts")) {
+                project.addSourceFileAtPath(entryPath);
+            }
+        });
+    }
+
+    loop(path.join(CWD, "lib"));
+}
+
 export function compile_module(name: string, sources: string[], loaders: string[], plugins: Plugin[], dependencies: string[], type: BuildType): CompilerResult | null {
     set_full_value(0.12);
     write_status_message("Build output");
@@ -294,6 +318,8 @@ export function compile_module(name: string, sources: string[], loaders: string[
         write_status_message(`Add '${sources[i]}' to module`);
         modules[i] = add_module_item(project, sources[i]);
     }
+
+    add_lib_files(project);
 
     set_full_value(0.36);
     write_status_message("Check diagnostics");
