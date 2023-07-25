@@ -45,7 +45,6 @@ builder.create_build_queue("all")
     .copy("./assets", "./out", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
-    .remove("./out/assets/config.d.ts.map")
     .done();
 
 builder.create_build_queue("fast")
@@ -57,7 +56,6 @@ builder.create_build_queue("fast")
     .copy("./assets", "./out", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
-    .remove("./out/assets/config.d.ts.map")
     .done();
 
 builder.create_build_queue("standalone")
@@ -69,7 +67,6 @@ builder.create_build_queue("standalone")
     .copy("./assets", "./out", true)
     .remove("./out/assets/config.ts")
     .remove("./out/assets/config.js.map")
-    .remove("./out/assets/config.d.ts.map")
     .done();
 
 builder.write("./tsb.config.json");
