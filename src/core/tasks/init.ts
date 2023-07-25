@@ -3,6 +3,8 @@ import * as fs from "fs";
 import * as path from "path";
 import {CWD, ENGINE_DIR} from "../global";
 import {PluginHandler} from "../plugin";
+import * as AdmZip from "adm-zip";
+import {extract_file} from "./use";
 
 function make_folder(dir: string): void {
     if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
@@ -104,6 +106,10 @@ export default function init(): void {
     fs.writeFileSync(path.join(CWD, ENGINE_DIR, "plugins.d.ts"), plugins.ts);
     fs.writeFileSync(path.join(CWD, ENGINE_DIR, "plugins.js"), plugins.js);
 
+    if (pluginProject) {
+        const zip: AdmZip = new AdmZip(path.join(__dirname, "assets", "tsb.lib.zip"));
+        extract_file(zip);
+    }
 }
 
 
