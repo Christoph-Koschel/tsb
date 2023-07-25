@@ -53,7 +53,7 @@ export default function use(): void {
     extract_file(zip);
 }
 
-function extract_file(zip: AdmZip): void {
+export function extract_file(zip: AdmZip): void {
     try {
         function copy_folder(dir: string, dest: string): void {
             if (!fs.existsSync(dest)) {
@@ -95,6 +95,6 @@ function extract_file(zip: AdmZip): void {
 
         copy_folder(path.join(CWD, "cash", "header"), path.join(CWD, "lib", lib.name, "header"));
     } catch {
-
+        console.log("Library is corrupted");
     }
 }
