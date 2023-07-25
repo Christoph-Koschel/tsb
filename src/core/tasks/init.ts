@@ -66,7 +66,6 @@ export default function init(): void {
             moduleResolution: "Node",
             removeComments: true,
             target: OPTIONS_SCRIPT_TARGET,
-            jsx: OPTIONS_JSX,
             allowJs: false,
             lib: [
                 "ES2022",
